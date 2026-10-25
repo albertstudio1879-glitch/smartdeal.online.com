@@ -14,7 +14,7 @@ export const Footer: React.FC<FooterProps> = ({ settings, onAdminClick, lang, on
   const t = (key: string) => getTranslation(lang, key);
 
   return (
-    <footer className="bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-800 mt-8 pb-16 sm:pb-6 pt-8 safe-pb transition-colors duration-300">
+    <footer className="bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-800 mt-8 pb-28 sm:pb-24 pt-8 safe-pb transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4">
         
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-12">

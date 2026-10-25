@@ -10,11 +10,74 @@ import { Footer } from './components/Footer';
 import { InfoPage } from './components/InfoPage';
 import { FilterBar } from './components/FilterBar';
 import { ShareModal } from './components/ShareModal';
+import { BottomNav, BottomNavTab } from './components/BottomNav';
+import { CartDrawer } from './components/CartDrawer';
+import { AccountDrawer } from './components/AccountDrawer';
 import { Product, Category, Theme } from './types';
-import { getProducts, saveProduct, deleteProduct, updateProductInteraction, getSiteSettings, SiteSettings } from './services/storageService';
+import { 
+  getProducts, 
+  saveProduct, 
+  deleteProduct, 
+  updateProductInteraction, 
+  getSiteSettings, 
+  SiteSettings,
+  getCartProductIds,
+  saveCartProductIds,
+  toggleCartProduct,
+  getWishlistProductIds,
+  saveWishlistProductIds,
+  toggleWishlistProduct,
+  WishlistEntry,
+  getWishlistEntries
+} from './services/storageService';
 import { Language, getTranslation } from './utils/translations';
 
-const App: React.FC = () => {
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("ErrorBoundary caught:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
+            <span className="text-2xl font-bold">SD</span>
+          </div>
+          <h2 className="text-xl font-bold mb-2">Smart Deal Online</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mb-6">
+            Something unexpected occurred. Tap below to reload the store smoothly.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              window.location.reload();
+            }}
+            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95"
+          >
+            Reload Store
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const AppContent: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<Category>('All');
@@ -24,6 +87,20 @@ const App: React.FC = () => {
   const [sharingProduct, setSharingProduct] = useState<Product | null>(null);
   const [currentLang, setCurrentLang] = useState<Language>('en');
   const [siteSettings, setSiteSettings] = useState<SiteSettings>({});
+
+  // Bottom Navigation & Drawer States
+  const [activeBottomTab, setActiveBottomTab] = useState<BottomNavTab>('home');
+  const [cartProductIds, setCartProductIds] = useState<string[]>([]);
+  const [wishlistProductIds, setWishlistProductIds] = useState<string[]>([]);
+  const [wishlistEntries, setWishlistEntries] = useState<WishlistEntry[]>([]);
+  const [cartDrawerInitialTab, setCartDrawerInitialTab] = useState<'cart' | 'wishlist'>(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'wishlist' || params.get('view') === 'wishlist') return 'wishlist';
+    return 'cart';
+  });
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [isAllCategoriesOpen, setIsAllCategoriesOpen] = useState(false);
   
   // Filtering & Sorting State
   const [activePriceRange, setActivePriceRange] = useState<string | null>(null);
@@ -80,6 +157,11 @@ const App: React.FC = () => {
     const data = await getProducts();
     setProducts(data);
     setSiteSettings(getSiteSettings());
+    const cartIds = getCartProductIds();
+    setCartProductIds(cartIds);
+    const wishlistIds = getWishlistProductIds();
+    setWishlistProductIds(wishlistIds);
+    setWishlistEntries(getWishlistEntries());
     setIsLoading(false);
 
     // Deep Link Logic: Check URL for ?code=XYZ
@@ -90,9 +172,6 @@ const App: React.FC = () => {
         const foundProduct = data.find(p => p.code.toLowerCase() === codeParam.toLowerCase());
         if (foundProduct) {
             setSelectedProductId(foundProduct.id);
-            // Optional: Clean URL so reload doesn't get stuck on one product, 
-            // or keep it to allow sharing the URL directly from browser bar.
-            // keeping it for now is user friendly.
         }
     }
   };
@@ -100,6 +179,108 @@ const App: React.FC = () => {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Sync bottom tab when sidebar closes
+  useEffect(() => {
+    if (!isSidebarOpen) {
+      setIsAllCategoriesOpen(false);
+      if (activeBottomTab === 'categories') {
+        setActiveBottomTab('home');
+      }
+    }
+  }, [isSidebarOpen, activeBottomTab]);
+
+  // Bottom Navigation Handlers
+  const handleBottomTabChange = (tab: BottomNavTab) => {
+    setActiveBottomTab(tab);
+    if (tab === 'home') {
+      setIsCartOpen(false);
+      setIsAccountOpen(false);
+      setIsAllCategoriesOpen(false);
+      setIsSidebarOpen(false);
+      setActiveCategory('All');
+      setSearchQuery('');
+      setActivePriceRange(null);
+      setActiveMinOffer(null);
+      setSortBy('default');
+      setSelectedProductId(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (tab === 'categories') {
+      setIsSidebarOpen(true);
+      setIsAllCategoriesOpen(true);
+      setIsCartOpen(false);
+      setIsAccountOpen(false);
+    } else if (tab === 'account') {
+      setIsAccountOpen(true);
+      setIsCartOpen(false);
+      setIsAllCategoriesOpen(false);
+      setIsSidebarOpen(false);
+    } else if (tab === 'wishlist') {
+      setSelectedProductId(null);
+      setCartDrawerInitialTab('wishlist');
+      setIsCartOpen(true);
+      setIsAccountOpen(false);
+      setIsAllCategoriesOpen(false);
+      setIsSidebarOpen(false);
+    } else if (tab === 'cart') {
+      setSelectedProductId(null);
+      setCartDrawerInitialTab('cart');
+      setIsCartOpen(true);
+      setIsAccountOpen(false);
+      setIsAllCategoriesOpen(false);
+      setIsSidebarOpen(false);
+    }
+  };
+
+  const handleCloseDrawers = () => {
+    setIsCartOpen(false);
+    setIsAccountOpen(false);
+    setIsAllCategoriesOpen(false);
+    setIsSidebarOpen(false);
+    setActiveBottomTab('home');
+  };
+
+  const handleToggleCart = (id: string) => {
+    const updated = toggleCartProduct(id, cartProductIds);
+    setCartProductIds(updated);
+  };
+
+  const handleRemoveFromCart = (id: string) => {
+    const updated = cartProductIds.filter(itemId => itemId !== id);
+    setCartProductIds(updated);
+    saveCartProductIds(updated);
+  };
+
+  const handleClearCart = () => {
+    setCartProductIds([]);
+    saveCartProductIds([]);
+  };
+
+  const handleToggleWishlist = (id: string) => {
+    const updated = toggleWishlistProduct(id, wishlistProductIds);
+    setWishlistProductIds(updated);
+    setWishlistEntries(getWishlistEntries());
+  };
+
+  const handleOpenWishlist = () => {
+    setSelectedProductId(null);
+    setCartDrawerInitialTab('wishlist');
+    setIsCartOpen(true);
+    setActiveBottomTab('cart');
+  };
+
+  const handleOpenCart = () => {
+    setSelectedProductId(null);
+    setCartDrawerInitialTab('cart');
+    setIsCartOpen(true);
+    setActiveBottomTab('cart');
+  };
+
+  const handleClearWishlist = () => {
+    setWishlistProductIds([]);
+    setWishlistEntries([]);
+    saveWishlistEntries([]);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -187,8 +368,6 @@ const App: React.FC = () => {
       } else if (activeCategory === 'Trending') {
         const taggedTrending = filtered.filter(p => p.categories && p.categories.includes('Trending'));
         filtered = taggedTrending.length > 0 ? taggedTrending : filtered.slice(0, 10);
-      } else if (activeCategory === 'Recently Uploaded') {
-        filtered = filtered.sort((a, b) => b.timestamp - a.timestamp);
       } else {
         filtered = filtered.filter(p => {
           const cats = p.categories || [];
@@ -308,6 +487,12 @@ const App: React.FC = () => {
         onOpenInfoPage={handleOpenInfoPage}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
+        isAllCategoriesOpen={isAllCategoriesOpen}
+        setIsAllCategoriesOpen={setIsAllCategoriesOpen}
+        cartCount={cartProductIds.length}
+        wishlistCount={wishlistProductIds.length}
+        onOpenCart={handleOpenCart}
+        onOpenWishlist={handleOpenWishlist}
       />
 
       <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4">
@@ -348,6 +533,10 @@ const App: React.FC = () => {
                   onBuy={() => handleBuy(product)}
                   lang={currentLang}
                   onShare={() => setSharingProduct(product)}
+                  isInCart={cartProductIds.includes(product.id)}
+                  onToggleCart={handleToggleCart}
+                  isInWishlist={wishlistProductIds.includes(product.id)}
+                  onToggleWishlist={handleToggleWishlist}
                 />
               ))}
             </div>
@@ -370,6 +559,10 @@ const App: React.FC = () => {
                       onBuy={() => handleBuy(product)}
                       lang={currentLang}
                       onShare={() => setSharingProduct(product)}
+                      isInCart={cartProductIds.includes(product.id)}
+                      onToggleCart={handleToggleCart}
+                      isInWishlist={wishlistProductIds.includes(product.id)}
+                      onToggleWishlist={handleToggleWishlist}
                     />
                   ))}
                </div>
@@ -391,6 +584,68 @@ const App: React.FC = () => {
         onOpenInfoPage={handleOpenInfoPage}
       />
 
+      {/* Fixed Bottom Navigation Area (Home, Categories, Wishlist, Account, Cart) */}
+      {!selectedProductId && (
+        <BottomNav 
+          activeTab={activeBottomTab}
+          onTabChange={handleBottomTabChange}
+          cartCount={cartProductIds.length}
+          wishlistCount={wishlistProductIds.length}
+          lang={currentLang}
+        />
+      )}
+
+      {/* Cart Drawer */}
+      <CartDrawer 
+        isOpen={isCartOpen}
+        onClose={handleCloseDrawers}
+        cartProductIds={cartProductIds}
+        products={products}
+        onRemoveFromCart={handleRemoveFromCart}
+        onClearCart={handleClearCart}
+        onProductClick={(id) => {
+          setSelectedProductId(id);
+          handleCloseDrawers();
+        }}
+        onBuyItem={handleBuy}
+        lang={currentLang}
+        wishlistProductIds={wishlistProductIds}
+        wishlistEntries={wishlistEntries}
+        onToggleWishlist={handleToggleWishlist}
+        onClearWishlist={handleClearWishlist}
+        onAddToCart={handleToggleCart}
+        initialTab={cartDrawerInitialTab}
+      />
+
+      {/* Account Drawer */}
+      <AccountDrawer 
+        isOpen={isAccountOpen}
+        onClose={handleCloseDrawers}
+        cartCount={cartProductIds.length}
+        wishlistCount={wishlistProductIds.length}
+        onOpenCart={() => {
+          setCartDrawerInitialTab('cart');
+          handleCloseDrawers();
+          setIsCartOpen(true);
+          setActiveBottomTab('cart');
+        }}
+        onOpenWishlist={() => {
+          setCartDrawerInitialTab('wishlist');
+          handleCloseDrawers();
+          setIsCartOpen(true);
+          setActiveBottomTab('cart');
+        }}
+        onOpenAdmin={() => {
+          handleCloseDrawers();
+          setIsAdminOpen(true);
+        }}
+        currentLang={currentLang}
+        onLanguageChange={setCurrentLang}
+        currentTheme={theme}
+        onThemeChange={setTheme}
+        onOpenInfoPage={(page) => handleOpenInfoPage(page, false)}
+      />
+
       {/* Overlays */}
       
       {selectedProduct && (
@@ -400,7 +655,6 @@ const App: React.FC = () => {
           onProductClick={setSelectedProductId}
           onBack={() => {
               setSelectedProductId(null);
-              // Clear URL params on back to avoid getting stuck if user refreshes
               window.history.replaceState({}, '', window.location.pathname);
           }} 
           onInteraction={handleInteraction}
@@ -408,6 +662,14 @@ const App: React.FC = () => {
           onBuyItem={handleBuy}
           lang={currentLang}
           onShare={(p) => setSharingProduct(p)}
+          isInCart={cartProductIds.includes(selectedProduct.id)}
+          cartProductIds={cartProductIds}
+          onToggleCart={handleToggleCart}
+          isInWishlist={wishlistProductIds.includes(selectedProduct.id)}
+          wishlistProductIds={wishlistProductIds}
+          onToggleWishlist={handleToggleWishlist}
+          onOpenWishlist={handleOpenWishlist}
+          onOpenCart={handleOpenCart}
         />
       )}
 
@@ -439,6 +701,14 @@ const App: React.FC = () => {
         />
       )}
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
   );
 };
 

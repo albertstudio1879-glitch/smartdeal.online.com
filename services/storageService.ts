@@ -209,3 +209,148 @@ export const updateProductInteraction = async (id: string, updates: { likes?: nu
     console.error("Failed to update interaction", e);
   }
 };
+
+const CART_KEY = 'smart_deal_cart_items';
+const CART_QUANTITIES_KEY = 'smart_deal_cart_quantities';
+
+export const getCartProductIds = (): string[] => {
+  try {
+    const stored = localStorage.getItem(CART_KEY);
+    if (stored !== null) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) return parsed;
+    }
+    return [];
+  } catch (e) {
+    console.error("Failed to get cart items", e);
+    return [];
+  }
+};
+
+export const saveCartProductIds = (ids: string[]) => {
+  try {
+    localStorage.setItem(CART_KEY, JSON.stringify(ids));
+  } catch (e) {
+    console.error("Failed to save cart items", e);
+  }
+};
+
+export const getCartQuantities = (): Record<string, number> => {
+  try {
+    const stored = localStorage.getItem(CART_QUANTITIES_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    return {};
+  }
+};
+
+export const saveCartQuantities = (quantities: Record<string, number>) => {
+  try {
+    localStorage.setItem(CART_QUANTITIES_KEY, JSON.stringify(quantities));
+  } catch (e) {
+    console.error("Failed to save cart quantities", e);
+  }
+};
+
+export const toggleCartProduct = (productId: string, currentIds: string[]): string[] => {
+  const exists = currentIds.includes(productId);
+  const updated = exists ? currentIds.filter(id => id !== productId) : [...currentIds, productId];
+  saveCartProductIds(updated);
+  return updated;
+};
+
+export interface WishlistEntry {
+  id: string;
+  addedAt: number; // milliseconds timestamp
+}
+
+const WISHLIST_KEY = 'smart_deal_wishlist_items_v2';
+const LEGACY_WISHLIST_KEY = 'smart_deal_wishlist_items';
+
+export const getWishlistEntries = (): WishlistEntry[] => {
+  try {
+    const storedV2 = localStorage.getItem(WISHLIST_KEY);
+    if (storedV2 !== null) {
+      const parsed = JSON.parse(storedV2);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item, idx) => {
+          if (typeof item === 'string') {
+            return { id: item, addedAt: Date.now() - (parsed.length - idx) * 3600000 };
+          }
+          if (item && typeof item === 'object' && item.id) {
+            return {
+              id: String(item.id),
+              addedAt: typeof item.addedAt === 'number' ? item.addedAt : Date.now()
+            };
+          }
+          return null;
+        }).filter((item): item is WishlistEntry => Boolean(item));
+      }
+    }
+
+    // Check legacy key for existing users
+    const legacyStored = localStorage.getItem(LEGACY_WISHLIST_KEY);
+    if (legacyStored !== null) {
+      const legacyParsed = JSON.parse(legacyStored);
+      if (Array.isArray(legacyParsed)) {
+        const migrated: WishlistEntry[] = legacyParsed.map((item, idx) => {
+          if (typeof item === 'string') {
+            return { id: item, addedAt: Date.now() - (legacyParsed.length - idx) * 86400000 };
+          }
+          if (item && typeof item === 'object' && item.id) {
+            return { id: String(item.id), addedAt: typeof item.addedAt === 'number' ? item.addedAt : Date.now() };
+          }
+          return null;
+        }).filter((item): item is WishlistEntry => Boolean(item));
+
+        saveWishlistEntries(migrated);
+        return migrated;
+      }
+    }
+
+    return [];
+  } catch (e) {
+    console.error("Failed to get wishlist entries", e);
+    return [];
+  }
+};
+
+export const saveWishlistEntries = (entries: WishlistEntry[]) => {
+  try {
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(entries));
+    // Also mirror to legacy key for any components reading legacy key
+    localStorage.setItem(LEGACY_WISHLIST_KEY, JSON.stringify(entries.map(e => e.id)));
+  } catch (e) {
+    console.error("Failed to save wishlist items", e);
+  }
+};
+
+export const getWishlistProductIds = (): string[] => {
+  return getWishlistEntries().map(e => e.id);
+};
+
+export const saveWishlistProductIds = (ids: string[]) => {
+  const currentEntries = getWishlistEntries();
+  const entryMap = new Map(currentEntries.map(e => [e.id, e.addedAt]));
+  const updatedEntries: WishlistEntry[] = ids.map(id => ({
+    id,
+    addedAt: entryMap.get(id) || Date.now()
+  }));
+  saveWishlistEntries(updatedEntries);
+};
+
+export const toggleWishlistProduct = (productId: string, currentIds?: string[]): string[] => {
+  const currentEntries = getWishlistEntries();
+  const exists = currentEntries.some(e => e.id === productId);
+  let updatedEntries: WishlistEntry[];
+  if (exists) {
+    updatedEntries = currentEntries.filter(e => e.id !== productId);
+  } else {
+    // Add to front with current timestamp
+    updatedEntries = [{ id: productId, addedAt: Date.now() }, ...currentEntries];
+  }
+  saveWishlistEntries(updatedEntries);
+  return updatedEntries.map(e => e.id);
+};
+
+

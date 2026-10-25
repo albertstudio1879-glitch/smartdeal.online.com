@@ -3,7 +3,6 @@ export type Category =
   | 'All'
   | 'Offer Zone'
   | 'Trending'
-  | 'Recently Uploaded'
   | 'Grocery'
   | 'Mobile'
   | 'Fashion'
@@ -51,7 +50,6 @@ export const CATEGORY_DETAILS: CategoryDetail[] = [
   { id: 'All', label: 'All' },
   { id: 'Trending', label: 'Trending' },
   { id: 'Offer Zone', label: 'Offer Zone' },
-  { id: 'Recently Uploaded', label: 'New' },
   { id: 'Mobile', label: 'Mobile' },
   { id: 'Grocery', label: 'Grocery' },
   { id: 'Fashion', label: 'Fashion' },

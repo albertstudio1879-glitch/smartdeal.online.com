@@ -2,7 +2,7 @@
 import React, { useState, TouchEvent, useEffect, useRef, useMemo } from 'react';
 import { Product } from '../types';
 import { getTranslation, Language } from '../utils/translations';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, ShoppingCart, Heart, Send } from 'lucide-react';
 import { ProductCard } from './ProductCard';
 
 interface ProductDetailsProps {
@@ -15,6 +15,14 @@ interface ProductDetailsProps {
   onBuyItem?: (product: Product) => void;
   lang?: Language;
   onShare: (product: Product) => void;
+  isInCart?: boolean;
+  cartProductIds?: string[];
+  onToggleCart?: (id: string) => void;
+  isInWishlist?: boolean;
+  wishlistProductIds?: string[];
+  onToggleWishlist?: (id: string) => void;
+  onOpenWishlist?: () => void;
+  onOpenCart?: () => void;
 }
 
 export const ProductDetails: React.FC<ProductDetailsProps> = ({ 
@@ -26,17 +34,49 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   onBuy, 
   onBuyItem,
   lang = 'en',
-  onShare
+  onShare,
+  isInCart = false,
+  cartProductIds = [],
+  onToggleCart,
+  isInWishlist = false,
+  wishlistProductIds = [],
+  onToggleWishlist,
+  onOpenWishlist,
+  onOpenCart
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [likeState, setLikeState] = useState<'none' | 'liked' | 'disliked'>('none');
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showWishlistToast, setShowWishlistToast] = useState(false);
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const containerRef = useRef<HTMLDivElement>(null);
 
   const t = (key: string) => getTranslation(lang as Language, key);
+
+  const handleWishlistToggle = () => {
+    if (onToggleWishlist) {
+      onToggleWishlist(product.id);
+    }
+    if (!isInWishlist) {
+      setShowWishlistToast(true);
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+      toastTimeoutRef.current = setTimeout(() => {
+        setShowWishlistToast(false);
+      }, 4000);
+    } else {
+      setShowWishlistToast(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    };
+  }, []);
+
 
   // Scroll to top when product changes
   useEffect(() => {
@@ -50,7 +90,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
     if (!allProducts || allProducts.length === 0) return [];
     
     // 1. Identify "Real" categories (exclude meta tags)
-    const META_CATEGORIES = ['Trending', 'Offer Zone', 'Recently Uploaded'];
+    const META_CATEGORIES = ['Trending', 'Offer Zone'];
     const currentRealCategories = product.categories.filter(c => !META_CATEGORIES.includes(c));
     const targetCategories = currentRealCategories.length > 0 ? currentRealCategories : product.categories;
 
@@ -213,14 +253,50 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
     <div ref={containerRef} className="fixed inset-0 z-[60] bg-white dark:bg-slate-900 overflow-y-auto animate-in slide-in-from-bottom-10 duration-200 no-scrollbar transition-colors duration-300">
       
       {/* Navbar */}
-      <div className="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 px-4 py-3 flex items-center gap-3">
-        <button 
-          onClick={onBack}
-          className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 transition-colors"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-        </button>
-        <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate flex-1">{product.name}</h1>
+      <div className="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <button 
+            onClick={onBack}
+            className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 transition-colors flex-shrink-0"
+            title="Back"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          </button>
+          <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 truncate">{product.name}</h1>
+        </div>
+
+        {/* Quick Wishlist & Cart Shortcuts */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onOpenWishlist}
+            className="p-2 text-gray-700 dark:text-gray-200 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all relative flex items-center justify-center"
+            title="My Wishlist"
+            aria-label="My Wishlist"
+          >
+            <Heart className={`w-5 h-5 ${isInWishlist || wishlistProductIds.length > 0 ? 'text-red-500 fill-red-500' : ''}`} />
+            {wishlistProductIds.length > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
+                {wishlistProductIds.length > 99 ? '99+' : wishlistProductIds.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={onOpenCart}
+            className="p-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all relative flex items-center justify-center"
+            title="My Cart"
+            aria-label="My Cart"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            {cartProductIds.length > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-blue-600 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
+                {cartProductIds.length > 99 ? '99+' : cartProductIds.length}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="max-w-3xl mx-auto pb-32">
@@ -237,6 +313,53 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
             alt={product.name}
             className="w-full h-full object-contain"
           />
+
+          {/* Floating Top-Right Buttons: Heart (My Wishlist) and Share (Paper Plane) */}
+          <div className="absolute top-3.5 right-3.5 z-20 flex flex-col gap-2.5">
+            {/* Heart Button (My Wishlist) */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleWishlistToggle();
+              }}
+              title={isInWishlist ? "Remove from My Wishlist" : "Add to My Wishlist"}
+              aria-label="My Wishlist"
+              className="w-10 h-10 rounded-2xl bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm shadow-md hover:shadow-lg border border-gray-100 dark:border-slate-700/60 flex items-center justify-center transition-all duration-200 active:scale-90"
+            >
+              <Heart 
+                className={`w-5 h-5 transition-transform duration-200 ${
+                  isInWishlist 
+                    ? 'text-red-500 fill-red-500 scale-110' 
+                    : 'text-gray-700 dark:text-gray-200 hover:text-red-500'
+                }`} 
+              />
+            </button>
+
+            {/* Share Button (Send / Paper plane icon) */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onShare(product);
+              }}
+              title="Share"
+              aria-label="Share"
+              className="w-10 h-10 rounded-2xl bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm shadow-md hover:shadow-lg border border-gray-100 dark:border-slate-700/60 flex items-center justify-center transition-all duration-200 active:scale-90"
+            >
+              <Send className="w-5 h-5 text-gray-700 dark:text-gray-200 -rotate-12 translate-x-[-1px] translate-y-[-1px]" />
+            </button>
+          </div>
+
+          {/* Floating Bottom-Left Rating Badge (like screenshot: 4.4 ★ | 7.6K+) */}
+          <div className="absolute bottom-3.5 left-3.5 z-10 pointer-events-none">
+            <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-bold text-gray-800 dark:text-gray-200 shadow-sm border border-gray-100 dark:border-slate-700/80 flex items-center gap-1.5">
+              <span className="text-gray-900 dark:text-white font-black">4.4</span>
+              <span className="text-emerald-600 text-xs">★</span>
+              <span className="text-gray-300 dark:text-gray-600">|</span>
+              <span className="text-gray-500 dark:text-gray-400 font-medium">7.6K+</span>
+            </div>
+          </div>
           
           {/* Dots only */}
           {images.length > 1 && (
@@ -389,6 +512,10 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                                 onBuy={(prod) => onBuyItem ? onBuyItem(prod) : {}}
                                 lang={lang}
                                 onShare={() => onShare(p)}
+                                isInCart={cartProductIds.includes(p.id)}
+                                onToggleCart={onToggleCart}
+                                isInWishlist={wishlistProductIds.includes(p.id)}
+                                onToggleWishlist={onToggleWishlist}
                             />
                         </div>
                     ))}
@@ -399,11 +526,52 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] safe-pb">
-        <div className="max-w-3xl mx-auto flex gap-4">
+      {/* Toast Notification like Image 1: "Product is added to My Wishlist" with "CHANGE" button */}
+      {showWishlistToast && (
+        <div className="fixed bottom-24 left-3 right-3 sm:left-6 sm:right-6 max-w-md mx-auto z-[70] animate-in slide-in-from-bottom-5 duration-200">
+          <div className="bg-[#202124] text-white px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between border border-gray-800">
+            <div className="flex items-center gap-2.5">
+              <Heart className="w-4 h-4 text-red-500 fill-red-500 flex-shrink-0" />
+              <span className="text-sm font-medium text-gray-100">
+                Product is added to My Wishlist
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowWishlistToast(false);
+                if (onOpenWishlist) {
+                  onOpenWishlist();
+                }
+              }}
+              className="text-[#f59e0b] hover:text-[#fbbf24] font-bold text-xs sm:text-sm tracking-wider uppercase pl-3 pr-1 py-1 transition-colors active:scale-95 cursor-pointer"
+            >
+              CHANGE
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] z-40 safe-pb">
+        <div className="max-w-3xl mx-auto flex items-center gap-3">
+           {onToggleCart && (
+             <button
+               type="button"
+               onClick={() => onToggleCart(product.id)}
+               className={`flex items-center justify-center gap-2 py-3.5 px-4 sm:px-6 rounded-xl border font-bold text-sm transition-all active:scale-95 ${
+                 isInCart
+                   ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-600 dark:text-blue-400'
+                   : 'bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-750'
+               }`}
+             >
+               <ShoppingCart className="w-5 h-5" />
+               <span className="whitespace-nowrap">{isInCart ? 'In Cart' : 'Add to Cart'}</span>
+             </button>
+           )}
+
            <button 
              onClick={onBuy}
-             className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-lg py-3.5 px-6 rounded-xl shadow-md text-center transition-all active:scale-95 animate-pulse hover:animate-none flex items-center justify-center gap-2"
+             className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-base sm:text-lg py-3.5 px-6 rounded-xl shadow-md text-center transition-all active:scale-95 animate-pulse hover:animate-none flex items-center justify-center gap-2"
            >
              <span>{t('buyNow')}</span>
              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>

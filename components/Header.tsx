@@ -8,7 +8,7 @@ import {
   HelpCircle, Scale, Info, ArrowLeft, ChevronRight, 
   Youtube, Facebook, MessageCircle, Send, Instagram, Twitter,
   Zap, Star, Clock, Coffee, Smartphone, Shirt, Sparkles, Package, X as CloseIcon,
-  Moon, Sun, Monitor, TrendingUp
+  Moon, Sun, Monitor, TrendingUp, Heart, ShoppingCart
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -26,6 +26,12 @@ interface HeaderProps {
   onOpenInfoPage: (page: 'help' | 'about' | 'legal', fromSidebar: boolean) => void;
   isSidebarOpen: boolean;
   setIsSidebarOpen: (isOpen: boolean) => void;
+  isAllCategoriesOpen?: boolean;
+  setIsAllCategoriesOpen?: (isOpen: boolean) => void;
+  cartCount?: number;
+  wishlistCount?: number;
+  onOpenCart?: () => void;
+  onOpenWishlist?: () => void;
 }
 
 const SidebarItem: React.FC<{ 
@@ -38,16 +44,20 @@ const SidebarItem: React.FC<{
 }> = ({ icon: Icon, label, onClick, subText, active, rightIcon }) => (
   <button 
     onClick={onClick} 
-    className={`w-full flex items-center gap-4 px-4 py-3.5 transition-colors border-l-4 ${active ? 'bg-brand-50 border-brand-600 text-brand-700 dark:bg-brand-900/20 dark:text-brand-400' : 'border-transparent hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-300'}`}
+    className={`w-full flex items-center gap-4 px-4 py-3.5 transition-colors border-l-4 ${
+      active 
+        ? 'bg-blue-950/40 border-blue-500 text-white dark:bg-blue-950/50 dark:text-white font-bold' 
+        : 'border-transparent hover:bg-slate-800/60 text-slate-200'
+    }`}
   >
      {Icon ? (
-        <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'text-brand-600 dark:text-brand-400' : 'text-gray-400 dark:text-gray-500'}`} />
+        <Icon className={`w-5 h-5 flex-shrink-0 ${active ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-400'}`} />
      ) : (
-        <div className={`w-2 h-2 rounded-full ${active ? 'bg-brand-600' : 'bg-gray-300 dark:bg-slate-600'}`}></div>
+        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${active ? 'bg-blue-500' : 'bg-slate-500'}`}></div>
      )}
      
      <div className="flex-1 text-left flex items-center justify-between">
-        <span className={`text-sm ${active ? 'font-bold' : 'font-medium'}`}>{label}</span>
+        <span className={`text-sm ${active ? 'font-bold text-white' : 'font-medium text-slate-200'}`}>{label}</span>
         <div className="flex items-center gap-2">
             {subText && <span className="text-xs text-brand-600 bg-brand-100 px-2 py-0.5 rounded-full font-bold">{subText}</span>}
             {rightIcon}
@@ -68,15 +78,27 @@ export const Header: React.FC<HeaderProps> = ({
   onAdminClick,
   currentTheme,
   onThemeChange,
-  onOpenInfoPage,
   isSidebarOpen,
-  setIsSidebarOpen
+  setIsSidebarOpen,
+  isAllCategoriesOpen,
+  setIsAllCategoriesOpen,
+  cartCount = 0,
+  wishlistCount = 0,
+  onOpenCart,
+  onOpenWishlist
 }) => {
   const [suggestions, setSuggestions] = useState<{product: Product, matchType: string}[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-  const [isAllCategoriesMenuOpen, setIsAllCategoriesMenuOpen] = useState(false);
+  const [internalIsAllCategoriesMenuOpen, setInternalIsAllCategoriesMenuOpen] = useState(false);
+
+  const isAllCategoriesMenuOpen = isAllCategoriesOpen !== undefined ? isAllCategoriesOpen : internalIsAllCategoriesMenuOpen;
+  const setAllCategoriesMenuOpen = (val: boolean) => {
+    if (setIsAllCategoriesOpen) setIsAllCategoriesOpen(val);
+    setInternalIsAllCategoriesMenuOpen(val);
+  };
+
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const t = (key: string) => getTranslation(currentLang, key);
@@ -137,46 +159,82 @@ export const Header: React.FC<HeaderProps> = ({
   const handleCategoryClick = (cat: Category) => {
     onCategoryChange(cat);
     setIsSidebarOpen(false);
+    setAllCategoriesMenuOpen(false);
   };
 
   const getTranslatedCategory = (cat: string) => {
       // Normalize 'For Gen Z' to 'forgenz' for translation key
       const catKey = cat.toLowerCase().replace(/ /g, '').replace('&', '').replace('acc', 'acc') as any;
-      return t(catKey);
+      return t(catKey) || cat;
   };
 
   const resetMenus = () => {
       setIsLanguageMenuOpen(false);
       setIsThemeMenuOpen(false);
-      setIsAllCategoriesMenuOpen(false);
+      setAllCategoriesMenuOpen(false);
   };
 
   // Define Main Categories that stay on the main menu
-  const MAIN_CATEGORY_IDS = ['Trending', 'Offer Zone', 'Recently Uploaded'];
+  const MAIN_CATEGORY_IDS = ['Trending', 'Offer Zone'];
 
   return (
     <>
       <header className="sticky top-0 z-50 w-full bg-white dark:bg-slate-900 shadow-sm transition-all duration-300">
         <div className="max-w-7xl mx-auto">
           
-          {/* Top Row: Menu, Brand, Search */}
-          <div className="flex flex-col md:flex-row md:items-center py-2 px-3 sm:px-4 gap-3 md:gap-8 border-b border-gray-100 dark:border-slate-800">
+          {/* Top Row: Menu, Brand, Search, Wishlist & Cart */}
+          <div className="flex flex-col md:flex-row md:items-center py-2 px-3 sm:px-4 gap-3 md:gap-4 border-b border-gray-100 dark:border-slate-800">
             
             <div className="flex items-center gap-3 justify-between">
               
-              {/* Hamburger Menu - Top Left */}
-              <button 
-                onClick={() => { setIsSidebarOpen(true); resetMenus(); }}
-                className="p-2 -ml-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              >
-                 <Menu className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Hamburger Menu - Top Left */}
+                <button 
+                  onClick={() => { setIsSidebarOpen(true); resetMenus(); }}
+                  className="p-2 -ml-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                >
+                   <Menu className="w-6 h-6" />
+                </button>
 
-              {/* Brand Name (Text only, DP removed) */}
-              <div className="flex-shrink-0 cursor-pointer group" onClick={() => onCategoryChange('All')}>
-                <span className="text-xl md:text-2xl font-black tracking-tight text-brand-600 dark:text-brand-500 whitespace-nowrap">
-                    Smart Deal Online
-                </span>
+                {/* Brand Name (Text only, DP removed) */}
+                <div className="flex-shrink-0 cursor-pointer group" onClick={() => onCategoryChange('All')}>
+                  <span className="text-xl md:text-2xl font-black tracking-tight text-brand-600 dark:text-brand-500 whitespace-nowrap">
+                      Smart Deal Online
+                  </span>
+                </div>
+              </div>
+
+              {/* Mobile Quick Action Buttons: Wishlist & Cart */}
+              <div className="flex md:hidden items-center gap-1">
+                <button
+                  type="button"
+                  onClick={onOpenWishlist}
+                  className="p-2 text-gray-700 dark:text-gray-200 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all relative flex items-center justify-center"
+                  title="My Wishlist"
+                  aria-label="My Wishlist"
+                >
+                  <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'text-red-500 fill-red-500' : ''}`} />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
+                      {wishlistCount > 99 ? '99+' : wishlistCount}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onOpenCart}
+                  className="p-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all relative flex items-center justify-center"
+                  title="My Cart"
+                  aria-label="My Cart"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-blue-600 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </button>
               </div>
             </div>
 
@@ -232,6 +290,43 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </div>
 
+            {/* Desktop Quick Action Buttons: Wishlist & Cart */}
+            <div className="hidden md:flex items-center gap-2.5 flex-shrink-0">
+              <button
+                type="button"
+                onClick={onOpenWishlist}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-gray-700 dark:text-gray-200 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all font-semibold text-sm relative group border border-gray-200/80 dark:border-slate-700/80"
+                title="My Wishlist"
+              >
+                <div className="relative">
+                  <Heart className={`w-4 h-4 transition-transform group-hover:scale-110 ${wishlistCount > 0 ? 'text-red-500 fill-red-500' : ''}`} />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-2 -right-2.5 min-w-[16px] h-[16px] px-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                      {wishlistCount > 99 ? '99+' : wishlistCount}
+                    </span>
+                  )}
+                </div>
+                <span>Wishlist</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenCart}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all font-bold text-sm relative shadow-xs border border-blue-200/60 dark:border-blue-800/60"
+                title="My Cart"
+              >
+                <div className="relative">
+                  <ShoppingCart className="w-4 h-4" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2.5 min-w-[16px] h-[16px] px-0.5 bg-blue-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </div>
+                <span>Cart</span>
+              </button>
+            </div>
+
           </div>
 
           {/* Bottom Row: Text Pills Categories (Professional Layout) */}
@@ -266,11 +361,14 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 cursor-pointer"
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={() => {
+              setIsSidebarOpen(false);
+              setAllCategoriesMenuOpen(false);
+            }}
           ></div>
 
-          {/* Sidebar Content */}
-          <div className="relative w-[85%] max-w-sm bg-white dark:bg-slate-900 h-full shadow-2xl animate-in slide-in-from-left duration-300 flex flex-col transition-colors duration-300 cursor-default" onClick={(e) => e.stopPropagation()}>
+          {/* Sidebar Content matching Image 1 */}
+          <div className="relative w-[85%] max-w-sm bg-slate-900 text-white h-full shadow-2xl animate-in slide-in-from-left duration-300 flex flex-col transition-colors duration-300 cursor-default" onClick={(e) => e.stopPropagation()}>
              
              {/* Header */}
              <div 
@@ -282,13 +380,19 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="text-lg font-bold leading-tight">Smart Deal Online</span>
                    </div>
                 </div>
-                <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-white/20 rounded-full text-white transition-colors">
+                <button 
+                  onClick={() => {
+                    setIsSidebarOpen(false);
+                    setAllCategoriesMenuOpen(false);
+                  }} 
+                  className="p-2 hover:bg-white/20 rounded-full text-white transition-colors"
+                >
                     <CloseIcon className="w-5 h-5" />
                 </button>
              </div>
 
              {/* Content Area */}
-             <div className="flex-1 overflow-y-auto bg-white dark:bg-slate-900 py-2">
+             <div className="flex-1 overflow-y-auto bg-slate-900 py-2">
                 
                 {isLanguageMenuOpen ? (
                     // Language Selection View
@@ -346,22 +450,29 @@ export const Header: React.FC<HeaderProps> = ({
                         </div>
                     </div>
                 ) : isAllCategoriesMenuOpen ? (
-                     // All Categories Submenu
+                     // All Categories Submenu (Matching Image 1)
                      <div className="animate-in slide-in-from-right duration-200">
-                        <div className="p-3 bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-800 flex items-center gap-2 sticky top-0">
-                            <button onClick={() => setIsAllCategoriesMenuOpen(false)} className="p-1 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-full">
-                                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                        <div className="p-3.5 bg-slate-900 border-b border-slate-800 flex items-center gap-3 sticky top-0 text-white">
+                            <button 
+                              onClick={() => setAllCategoriesMenuOpen(false)} 
+                              className="p-1 hover:bg-slate-800 rounded-full text-white transition-colors"
+                              title="Back"
+                            >
+                                <ArrowLeft className="w-5 h-5" />
                             </button>
-                            <span className="font-bold text-gray-800 dark:text-gray-100">{t('allCategories')}</span>
+                            <span className="font-bold text-base text-white">{t('allCategories') || 'All Categories'}</span>
                         </div>
-                        <div className="p-2">
-                             {/* Render only NON-MAIN categories here */}
+                        <div className="py-1">
+                             {/* Render categories matching Image 1 */}
                              {CATEGORY_DETAILS.filter(cat => !MAIN_CATEGORY_IDS.includes(cat.id)).map(cat => (
                                     <SidebarItem 
                                         key={cat.id}
                                         label={getTranslatedCategory(cat.id)}
                                         active={activeCategory === cat.id}
-                                        onClick={() => handleCategoryClick(cat.id)} 
+                                        onClick={() => {
+                                          handleCategoryClick(cat.id);
+                                          setAllCategoriesMenuOpen(false);
+                                        }} 
                                     />
                              ))}
                         </div>
@@ -369,13 +480,37 @@ export const Header: React.FC<HeaderProps> = ({
                 ) : (
                     // Main Menu View
                     <div>
+                        {/* Quick Access to Wishlist & Cart */}
+                        <div className="mb-2">
+                            <SidebarItem 
+                                icon={Heart} 
+                                label="My Wishlist" 
+                                subText={wishlistCount > 0 ? `${wishlistCount} items` : undefined}
+                                onClick={() => {
+                                  setIsSidebarOpen(false);
+                                  if (onOpenWishlist) onOpenWishlist();
+                                }}
+                            />
+                            <SidebarItem 
+                                icon={ShoppingCart} 
+                                label="My Cart" 
+                                subText={cartCount > 0 ? `${cartCount} items` : undefined}
+                                onClick={() => {
+                                  setIsSidebarOpen(false);
+                                  if (onOpenCart) onOpenCart();
+                                }}
+                            />
+                        </div>
+
+                        <div className="h-1 bg-slate-800 mx-4 rounded mb-2"></div>
+
                         {/* Primary Actions */}
                         <div className="mb-2">
                             <SidebarItem icon={Languages} label={t('chooseLanguage')} onClick={() => setIsLanguageMenuOpen(true)} />
                             <SidebarItem icon={Moon} label={t('appearance')} onClick={() => setIsThemeMenuOpen(true)} subText={t(currentTheme === 'system' ? 'systemDefault' : currentTheme)} />
                         </div>
 
-                        <div className="h-1 bg-gray-50 dark:bg-slate-800 mx-4 rounded mb-2"></div>
+                        <div className="h-1 bg-slate-800 mx-4 rounded mb-2"></div>
 
                         {/* Highlighted Main Categories */}
                         <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('trending')} & {t('offerZone')}</div>
@@ -393,19 +528,12 @@ export const Header: React.FC<HeaderProps> = ({
                                 active={activeCategory === 'Offer Zone'} 
                                 onClick={() => handleCategoryClick('Offer Zone')} 
                             />
-                            {/* Recently Uploaded Sidebar Item */}
-                            <SidebarItem 
-                                icon={Clock} 
-                                label={t('recentlyuploaded')} 
-                                active={activeCategory === 'Recently Uploaded'} 
-                                onClick={() => handleCategoryClick('Recently Uploaded')} 
-                            />
                             
                             {/* All Categories Trigger */}
                             <SidebarItem 
                                 icon={LayoutGrid} 
                                 label={t('allCategories')} 
-                                onClick={() => setIsAllCategoriesMenuOpen(true)}
+                                onClick={() => setAllCategoriesMenuOpen(true)}
                                 rightIcon={<ChevronRight className="w-4 h-4 text-gray-400" />}
                             />
                         </div>
@@ -496,8 +624,8 @@ export const Header: React.FC<HeaderProps> = ({
              </div>
 
              {/* Sidebar Footer with Admin Trigger */}
-             <div className="p-4 bg-gray-50 dark:bg-slate-800 border-t border-gray-100 dark:border-slate-800 text-center">
-               <p className="text-[10px] text-gray-400 select-none">
+             <div className="p-4 bg-slate-900 border-t border-slate-800 text-center">
+               <p className="text-xs text-slate-400 select-none">
                  Smart Deal Online v2.<span onClick={onAdminClick} className="cursor-default">0</span>.{new Date().getFullYear().toString().slice(-2)}
                </p>
              </div>

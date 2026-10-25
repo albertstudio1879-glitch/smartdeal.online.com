@@ -258,7 +258,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, onAddProduct, p
   };
 
   const generateProductCode = (categories: Category[]) => {
-    const mainCategory = categories.find(c => c !== 'Trending' && c !== 'Recently Uploaded') || categories[0] || 'GEN';
+    const mainCategory = categories.find(c => c !== 'Trending') || categories[0] || 'GEN';
     const prefix = mainCategory.substring(0, 3).toUpperCase();
     const uniqueSuffix = Date.now().toString().slice(-6);
     return `${prefix}-${uniqueSuffix}`;

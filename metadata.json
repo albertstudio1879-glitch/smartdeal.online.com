@@ -1,5 +1,6 @@
 {
   "name": "Smart Deal Online",
   "description": "A modern, high-performance affiliate marketing showcase platform allowing users to browse, search, and navigate to partner products seamlessly.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": []
 }
