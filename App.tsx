@@ -64,7 +64,7 @@ class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center p-6 text-center">
+        <div className="min-h-screen bg-[#F7F9FF] dark:bg-[#071329] text-[#102A56] dark:text-[#F5F7FF] flex flex-col items-center justify-center p-6 text-center">
           <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
             <span className="text-2xl font-bold">SD</span>
           </div>
@@ -536,7 +536,7 @@ const AppContent: React.FC = () => {
 
   if (isAuthLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center flex-col transition-colors duration-300">
+      <div className="min-h-screen bg-[#F7F9FF] dark:bg-[#071329] text-[#102A56] dark:text-[#F5F7FF] flex items-center justify-center flex-col transition-colors duration-300">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mb-4"></div>
         <p className="text-gray-500 dark:text-gray-400 text-sm">{t('loading')}</p>
       </div>
@@ -544,7 +544,7 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-[#F7F9FF] dark:bg-[#071329] text-[#102A56] dark:text-[#F5F7FF] font-sans transition-colors duration-300">
       
       {/* 
          Structure Change:
