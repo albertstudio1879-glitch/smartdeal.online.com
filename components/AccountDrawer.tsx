@@ -54,6 +54,8 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
   const [lastName, setLastName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [emailId, setEmailId] = useState('');
+  const [avatar, setAvatar] = useState('');
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -75,6 +77,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
           setLastName(data.lastName !== undefined ? data.lastName : (parts.slice(1).join(' ') || ''));
           setEmailId(data.email || currentUser.email || '');
           setMobileNumber(data.phoneNumber || '');
+          setAvatar(data.avatar || currentUser.avatar || '');
         }
         setIsLoadingProfile(false);
       }, (err) => {
@@ -87,6 +90,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
       setLastName('');
       setEmailId('');
       setMobileNumber('');
+      setAvatar('');
       setIsLoadingProfile(false);
     }
     return () => {
@@ -109,6 +113,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
         displayName: updatedName,
         email: emailId,
         phoneNumber: mobileNumber,
+        avatar,
         updatedAt: Date.now()
       });
       const updatedUser = {
@@ -117,7 +122,8 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
         lastName,
         displayName: updatedName,
         email: emailId,
-        phoneNumber: mobileNumber
+        phoneNumber: mobileNumber,
+        avatar
       };
       saveLocalUser(updatedUser);
       setCurrentUser(updatedUser);
@@ -156,8 +162,12 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
           {/* Header */}
           <div className="p-5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 text-white shadow-inner font-bold text-lg">
-                {currentUser?.displayName ? currentUser.displayName.charAt(0).toUpperCase() : (
+              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 text-white shadow-inner font-bold text-lg overflow-hidden">
+                {currentUser?.avatar ? (
+                  <img src={currentUser.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : currentUser?.displayName ? (
+                  currentUser.displayName.charAt(0).toUpperCase()
+                ) : (
                   <User className="w-6 h-6" />
                 )}
               </div>
@@ -271,8 +281,14 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
               className="w-full p-3.5 bg-blue-50 dark:bg-slate-800 rounded-xl border border-blue-200 dark:border-slate-700 flex items-center justify-between hover:border-blue-400 transition-colors group cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-                  {currentUser?.displayName ? currentUser.displayName.charAt(0).toUpperCase() : <User className="w-5 h-5" />}
+                <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold overflow-hidden">
+                  {currentUser?.avatar ? (
+                    <img src={currentUser.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : currentUser?.displayName ? (
+                    currentUser.displayName.charAt(0).toUpperCase()
+                  ) : (
+                    <User className="w-5 h-5" />
+                  )}
                 </div>
                 <div className="text-left">
                   <div className="text-xs font-bold text-gray-800 dark:text-gray-200">My Profile</div>
@@ -562,18 +578,128 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
               >
                 <X className="w-5 h-5" />
               </button>
-              <div className="relative w-24 h-24 rounded-full bg-white dark:bg-slate-800 shadow-lg border-4 border-white/20 flex items-center justify-center text-gray-800 dark:text-white text-3xl font-bold overflow-hidden">
-                {currentUser?.avatar ? (
-                  <img src={currentUser.avatar} alt="Avatar" className="w-full h-full object-cover" />
+              <div 
+                onClick={() => setShowAvatarPicker(true)}
+                className="relative w-24 h-24 rounded-full bg-white dark:bg-slate-800 shadow-lg border-4 border-white/25 flex items-center justify-center text-gray-800 dark:text-white text-3xl font-bold cursor-pointer group"
+                title="Click to change profile photo"
+              >
+                {avatar ? (
+                  <img src={avatar} alt="Avatar" className="w-full h-full object-cover rounded-full" />
                 ) : (
-                  <span>{currentUser?.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U'}</span>
+                  <span>{(firstName || currentUser?.displayName || 'U').charAt(0).toUpperCase()}</span>
                 )}
-                <div className="absolute bottom-0 right-0 bg-white dark:bg-slate-700 p-1.5 rounded-full shadow-md text-blue-600 dark:text-blue-400 border border-gray-200 dark:border-slate-600">
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white rounded-full">
+                  <Edit3 className="w-6 h-6" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white p-2 rounded-full shadow-lg border-2 border-white dark:border-slate-900 flex items-center justify-center">
                   <Edit3 className="w-4 h-4" />
                 </div>
               </div>
               <h3 className="text-base font-bold mt-2">My Profile</h3>
+              <p className="text-[11px] text-blue-100 mt-0.5">Click photo to change avatar</p>
             </div>
+
+            {/* Avatar Picker Modal */}
+            {showAvatarPicker && (
+              <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
+                <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-slate-800 flex flex-col p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+                  <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <Edit3 className="w-4 h-4 text-blue-600" /> Choose Profile Photo
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowAvatarPicker(false)}
+                      className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Option 1: First Name Initial Avatar with Color Badges */}
+                    <div>
+                      <div className="p-3.5 bg-blue-50/60 dark:bg-slate-800/60 rounded-xl border border-blue-200 dark:border-slate-700 space-y-3">
+                        <div className="grid grid-cols-7 gap-2.5">
+                          {[
+                            { name: 'Blue', hex: '2563eb', bg: 'bg-blue-600' },
+                            { name: 'Indigo', hex: '4f46e5', bg: 'bg-indigo-600' },
+                            { name: 'Violet', hex: '7c3aed', bg: 'bg-violet-600' },
+                            { name: 'Purple', hex: '9333ea', bg: 'bg-purple-600' },
+                            { name: 'Pink', hex: 'db2777', bg: 'bg-pink-600' },
+                            { name: 'Rose', hex: 'e11d48', bg: 'bg-rose-600' },
+                            { name: 'Red', hex: 'dc2626', bg: 'bg-red-600' },
+                            { name: 'Orange', hex: 'ea580c', bg: 'bg-orange-600' },
+                            { name: 'Amber', hex: 'd97706', bg: 'bg-amber-600' },
+                            { name: 'Emerald', hex: '059669', bg: 'bg-emerald-600' },
+                            { name: 'Teal', hex: '0d9488', bg: 'bg-teal-600' },
+                            { name: 'Cyan', hex: '0284c7', bg: 'bg-cyan-600' },
+                            { name: 'Slate', hex: '475569', bg: 'bg-slate-600' },
+                            { name: 'Dark', hex: '111827', bg: 'bg-gray-900' },
+                          ].map((c) => {
+                            const firstLetter = (firstName || currentUser?.displayName || 'User').trim().charAt(0).toUpperCase();
+                            const letterAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(firstLetter)}&backgroundColor=${c.hex}&textColor=ffffff`;
+                            const isSelected = avatar === letterAvatar;
+                            return (
+                              <button
+                                key={c.hex}
+                                type="button"
+                                onClick={() => {
+                                  setAvatar(letterAvatar);
+                                  setShowAvatarPicker(false);
+                                }}
+                                className={`relative w-11 h-11 rounded-full ${c.bg} text-white flex items-center justify-center font-bold text-base shadow-md hover:scale-110 transition-transform cursor-pointer border-2 ${
+                                  isSelected ? 'border-white ring-4 ring-blue-500' : 'border-transparent hover:border-white/50'
+                                }`}
+                                title={`${c.name} background`}
+                              >
+                                {firstLetter}
+                                {isSelected && (
+                                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
+                                    <Check className="w-2.5 h-2.5 text-white" />
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Illustrated Cartoon Avatars */}
+                    <div>
+                      <div className="grid grid-cols-3 gap-2.5">
+                        {[
+                          'https://api.dicebear.com/7.x/avataaars/svg?seed=Buster&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+                          'https://api.dicebear.com/7.x/avataaars/svg?seed=Daisy&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+                          'https://api.dicebear.com/7.x/lorelei/svg?seed=Charlie&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+                          'https://api.dicebear.com/7.x/lorelei/svg?seed=Chloe&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+                          'https://api.dicebear.com/7.x/avataaars/svg?seed=Jasper&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+                          'https://api.dicebear.com/7.x/avataaars/svg?seed=Penny&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+                          'https://api.dicebear.com/7.x/lorelei/svg?seed=Oscar&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+                          'https://api.dicebear.com/7.x/lorelei/svg?seed=Ruby&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf',
+                          'https://api.dicebear.com/7.x/avataaars/svg?seed=Ziggy&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf'
+                        ].map((url, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              setAvatar(url);
+                              setShowAvatarPicker(false);
+                            }}
+                            className={`w-20 h-20 mx-auto rounded-full overflow-hidden border-2 transition-all hover:scale-105 shadow-sm bg-gray-100 dark:bg-slate-800 cursor-pointer ${
+                              avatar === url ? 'border-blue-600 ring-2 ring-blue-400' : 'border-gray-200 dark:border-slate-700'
+                            }`}
+                          >
+                            <img src={url} alt={`Cartoon Avatar ${idx + 1}`} className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Form Body or Sign-In Prompt */}
             {!currentUser ? (
