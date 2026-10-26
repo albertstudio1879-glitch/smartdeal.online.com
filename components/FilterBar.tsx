@@ -49,17 +49,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <div className="flex items-center justify-between px-2 mb-2">
          <button
             onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 isFiltersOpen
-                ? 'bg-brand-600 text-white'
-                : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-slate-700'
+                ? 'glow-btn-primary text-white border-white/20'
+                : 'glow-subtle bg-white/80 dark:bg-[#102448]/80 backdrop-blur-md text-[#102A56] dark:text-[#F5F7FF] hover:border-[var(--glow-border)] glow-interactive'
             }`}
          >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>Filters</span>
          </button>
 
-         <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+         <span className="text-xs text-[#526B98] dark:text-[#8294B8] font-medium">
             {resultCount} Items Found
          </span>
       </div>
@@ -69,51 +69,51 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <div className="animate-in slide-in-from-top-2 duration-200 fade-in">
               <div className="flex items-center gap-2 overflow-x-auto px-2 pb-2 no-scrollbar">
                   
-                  {/* Sort: Most Liked - Full Name */}
+                  {/* Sort: Most Liked */}
                   <button
                     onClick={() => onSortChange(sortBy === 'likes' ? 'default' : 'likes')}
-                    className={`flex-shrink-0 whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    className={`flex-shrink-0 whitespace-nowrap flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                         sortBy === 'likes'
-                        ? 'bg-red-50 border-red-200 text-red-600 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
-                        : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 dark:bg-slate-800 dark:border-slate-700 dark:text-gray-300'
+                        ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border border-pink-400/40 shadow-xs'
+                        : 'glow-subtle bg-white/80 dark:bg-[#102448]/80 backdrop-blur-md text-[#526B98] dark:text-[#B8C7E8] hover:border-[var(--glow-border)]'
                     }`}
                   >
                     <Heart className={`w-3.5 h-3.5 ${sortBy === 'likes' ? 'fill-current' : ''}`} />
                     Most Liked
                   </button>
 
-                  {/* Sort: Best Offer - Full Name */}
+                  {/* Sort: Best Offer */}
                   <button
                     onClick={() => onSortChange(sortBy === 'discount' ? 'default' : 'discount')}
-                    className={`flex-shrink-0 whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    className={`flex-shrink-0 whitespace-nowrap flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                         sortBy === 'discount'
-                        ? 'bg-green-50 border-green-200 text-green-600 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400'
-                        : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 dark:bg-slate-800 dark:border-slate-700 dark:text-gray-300'
+                        ? 'bg-gradient-to-r from-[#00D9B8] to-[#00B887] text-white border border-teal-400/40 shadow-xs'
+                        : 'glow-subtle bg-white/80 dark:bg-[#102448]/80 backdrop-blur-md text-[#526B98] dark:text-[#B8C7E8] hover:border-[var(--glow-border)]'
                     }`}
                   >
                     <Percent className="w-3.5 h-3.5" />
                     Best Offer
                   </button>
 
-                  <div className="w-[1px] h-4 bg-gray-200 dark:bg-slate-700 mx-1 flex-shrink-0"></div>
+                  <div className="w-[1px] h-4 bg-[var(--glow-border-subtle)] mx-1 flex-shrink-0"></div>
 
-                  {/* Price Filter - Reduced Size */}
+                  {/* Price Filter */}
                   <div className="relative flex-shrink-0">
                     <select
                         value={activePriceRange || ''}
                         onChange={(e) => onPriceRangeChange(e.target.value || null)}
-                        className={`appearance-none pl-3 pr-6 py-1.5 rounded-full text-xs font-medium border focus:outline-none transition-colors cursor-pointer ${
+                        className={`appearance-none pl-3.5 pr-7 py-1.5 rounded-full text-xs font-semibold focus:outline-none transition-all cursor-pointer ${
                             activePriceRange 
-                            ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400' 
-                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 dark:bg-slate-800 dark:border-slate-700 dark:text-gray-300'
+                            ? 'glow-card bg-blue-500/15 text-blue-600 dark:text-cyan-300 border-[var(--glow-border)] shadow-xs' 
+                            : 'glow-subtle bg-white/80 dark:bg-[#102448]/80 backdrop-blur-md text-[#526B98] dark:text-[#B8C7E8] hover:border-[var(--glow-border)]'
                         }`}
                     >
                         <option value="">Price</option>
                         {PRICE_RANGES.map((range) => (
-                            <option key={range.value} value={range.value}>{range.label}</option>
+                            <option key={range.value} value={range.value} className="bg-white dark:bg-[#102448] text-[#102A56] dark:text-[#F5F7FF]">{range.label}</option>
                         ))}
                     </select>
-                    <ChevronDown className={`w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none ${activePriceRange ? 'text-blue-600' : 'text-gray-400'}`} />
+                    <ChevronDown className={`w-3 h-3 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${activePriceRange ? 'text-blue-500 dark:text-cyan-400' : 'text-gray-400'}`} />
                   </div>
 
                   {/* Offer Filter */}
@@ -121,18 +121,18 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     <select
                         value={activeMinOffer || ''}
                         onChange={(e) => onMinOfferChange(e.target.value ? Number(e.target.value) : null)}
-                        className={`appearance-none pl-3 pr-6 py-1.5 rounded-full text-xs font-medium border focus:outline-none transition-colors cursor-pointer ${
+                        className={`appearance-none pl-3.5 pr-7 py-1.5 rounded-full text-xs font-semibold focus:outline-none transition-all cursor-pointer ${
                             activeMinOffer 
-                            ? 'bg-orange-50 border-orange-200 text-orange-600 dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-400' 
-                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 dark:bg-slate-800 dark:border-slate-700 dark:text-gray-300'
+                            ? 'glow-card bg-orange-500/15 text-orange-600 dark:text-orange-400 border-[var(--glow-border)] shadow-xs' 
+                            : 'glow-subtle bg-white/80 dark:bg-[#102448]/80 backdrop-blur-md text-[#526B98] dark:text-[#B8C7E8] hover:border-[var(--glow-border)]'
                         }`}
                     >
                         <option value="">Min Offer</option>
                         {OFFER_RANGES.map((range) => (
-                            <option key={range.value} value={range.value}>{range.label}</option>
+                            <option key={range.value} value={range.value} className="bg-white dark:bg-[#102448] text-[#102A56] dark:text-[#F5F7FF]">{range.label}</option>
                         ))}
                     </select>
-                    <ChevronDown className={`w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none ${activeMinOffer ? 'text-orange-600' : 'text-gray-400'}`} />
+                    <ChevronDown className={`w-3 h-3 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${activeMinOffer ? 'text-orange-500' : 'text-gray-400'}`} />
                   </div>
               </div>
           </div>

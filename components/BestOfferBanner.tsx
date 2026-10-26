@@ -95,7 +95,7 @@ export const BestOfferBanner: React.FC<BestOfferBannerProps> = ({ products, onPr
       
       <div 
         onClick={() => onProductClick(currentProduct.id)}
-        className={`relative w-full h-[200px] sm:h-[260px] bg-gradient-to-r ${currentGradient} rounded-2xl overflow-hidden shadow-lg group transition-all duration-700 cursor-pointer select-none ring-2 ring-white/20`}
+        className="glow-featured relative w-full h-[200px] sm:h-[260px] bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 rounded-[28px] overflow-hidden group transition-all duration-700 cursor-pointer select-none"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -108,10 +108,10 @@ export const BestOfferBanner: React.FC<BestOfferBannerProps> = ({ products, onPr
         <div className="flex h-full relative z-10">
           
           {/* Left: Text Content - Increased width on mobile */}
-          <div className="w-[60%] sm:w-[55%] pl-4 sm:pl-8 flex flex-col justify-center h-full relative z-20">
+          <div className="w-[58%] sm:w-[55%] pl-4 sm:pl-8 flex flex-col justify-center h-full relative z-20">
             
             <div className="flex items-center gap-2 mb-2">
-                <span className="bg-white text-black text-[10px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-wider">
+                <span className="bg-white text-black text-[10px] font-black px-2.5 py-1 rounded-xl shadow-xs uppercase tracking-wider">
                     {Math.round(currentProduct.discount)}% OFF
                 </span>
                 <span className="text-white/80 text-[10px] font-medium line-through decoration-white/50">
@@ -119,11 +119,11 @@ export const BestOfferBanner: React.FC<BestOfferBannerProps> = ({ products, onPr
                 </span>
             </div>
             
-            <h2 className="text-base sm:text-2xl font-black text-white leading-tight drop-shadow-sm line-clamp-2 mb-2 pr-1">
+            <h2 className="text-base sm:text-2xl font-black text-white leading-tight drop-shadow-sm line-clamp-2 mb-2.5 pr-1">
               {currentProduct.name}
             </h2>
 
-            <div className="bg-black/20 backdrop-blur-md self-start px-3 py-1 rounded-lg border border-white/10 flex items-center gap-2">
+            <div className="bg-black/30 backdrop-blur-md self-start px-3.5 py-1.5 rounded-xl border border-[var(--glow-border-subtle)] flex items-center gap-2 shadow-xs">
                 <span className="text-white text-[10px] sm:text-xs font-medium">Pay Only</span>
                 <span className="text-white text-lg font-bold">{formatPrice(currentProduct.price || '')}</span>
             </div>
@@ -131,16 +131,18 @@ export const BestOfferBanner: React.FC<BestOfferBannerProps> = ({ products, onPr
           </div>
 
           {/* Right: Floating Product Image - Adjusted size for mobile */}
-          <div className="w-[40%] sm:w-[45%] h-full relative flex items-center justify-center pr-2">
-             <div className="absolute w-28 h-28 sm:w-48 sm:h-48 bg-white/30 rounded-full blur-2xl"></div>
+          <div className="w-[42%] sm:w-[45%] h-full relative flex items-center justify-center pr-3 sm:pr-6">
+             <div className="absolute w-28 h-28 sm:w-48 sm:h-48 bg-white/20 rounded-full blur-2xl"></div>
              
-             {/* Image with Curves */}
+             {/* Image with crisp white container */}
              <div className="relative">
-                 <img 
-                   src={displayImage} 
-                   alt={currentProduct.name}
-                   className="h-36 sm:h-52 w-auto object-contain rounded-2xl drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)] transform transition-transform duration-500 group-hover:scale-110 bg-white/5 backdrop-blur-sm border border-white/10 p-1"
-                 />
+                 <div className="bg-white rounded-[22px] p-2.5 shadow-xl border border-white/60 transform transition-transform duration-500 group-hover:scale-105">
+                   <img 
+                     src={displayImage} 
+                     alt={currentProduct.name}
+                     className="h-32 sm:h-48 w-auto object-contain rounded-xl"
+                   />
+                 </div>
              </div>
           </div>
         </div>
@@ -151,7 +153,7 @@ export const BestOfferBanner: React.FC<BestOfferBannerProps> = ({ products, onPr
                <button 
                  key={idx} 
                  onClick={(e) => handleManualSlide(e, idx)}
-                 className={`h-1 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-5 sm:w-6 bg-white' : 'w-1.5 bg-white/40'}`}
+                 className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-5 sm:w-6 bg-white shadow-xs' : 'w-1.5 bg-white/40'}`}
                />
              ))}
         </div>

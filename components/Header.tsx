@@ -179,43 +179,44 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-white dark:bg-slate-900 shadow-sm transition-all duration-300">
+      <header className="sticky top-0 z-50 w-full bg-[#F7F9FF]/80 dark:bg-[#071329]/80 backdrop-blur-xl border-b border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.22)] shadow-[0_4px_20px_rgba(37,137,255,0.06)] dark:shadow-[0_4px_25px_rgba(0,0,0,0.4)] transition-all duration-300">
         <div className="max-w-7xl mx-auto">
           
           {/* Top Row: Menu, Brand, Search, Wishlist & Cart */}
-          <div className="flex flex-col md:flex-row md:items-center py-2 px-3 sm:px-4 gap-3 md:gap-4 border-b border-gray-100 dark:border-slate-800">
+          <div className="flex flex-col md:flex-row md:items-center py-2.5 px-3 sm:px-4 gap-3 md:gap-4 border-b border-[rgba(92,137,220,0.12)] dark:border-[rgba(100,160,255,0.15)]">
             
             <div className="flex items-center gap-3 justify-between">
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 {/* Hamburger Menu - Top Left */}
                 <button 
                   onClick={() => { setIsSidebarOpen(true); resetMenus(); }}
-                  className="p-2 -ml-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-[#102448]/80 backdrop-blur-md border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive shadow-xs text-[#102A56] dark:text-[#F5F7FF] cursor-pointer"
+                  aria-label="Open menu"
                 >
-                   <Menu className="w-6 h-6" />
+                   <Menu className="w-5 h-5" />
                 </button>
 
-                {/* Brand Name (Text only, DP removed) */}
+                {/* Brand Name */}
                 <div className="flex-shrink-0 cursor-pointer group" onClick={() => onCategoryChange('All')}>
-                  <span className="text-xl md:text-2xl font-black tracking-tight text-brand-600 dark:text-brand-500 whitespace-nowrap">
+                  <span className="text-xl md:text-2xl font-black tracking-tight text-[#0066FF] dark:text-cyan-400 drop-shadow-sm whitespace-nowrap">
                       Smart Deal Online
                   </span>
                 </div>
               </div>
 
               {/* Mobile Quick Action Buttons: Wishlist & Cart */}
-              <div className="flex md:hidden items-center gap-1">
+              <div className="flex md:hidden items-center gap-2">
                 <button
                   type="button"
                   onClick={onOpenWishlist}
-                  className="p-2 text-gray-700 dark:text-gray-200 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all relative flex items-center justify-center"
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-[#102448]/80 backdrop-blur-md border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive shadow-xs text-pink-500 relative cursor-pointer"
                   title="My Wishlist"
                   aria-label="My Wishlist"
                 >
-                  <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'text-red-500 fill-red-500' : ''}`} />
+                  <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'text-pink-500 fill-pink-500' : 'text-pink-500'}`} />
                   {wishlistCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-md">
                       {wishlistCount > 99 ? '99+' : wishlistCount}
                     </span>
                   )}
@@ -224,13 +225,13 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   type="button"
                   onClick={onOpenCart}
-                  className="p-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all relative flex items-center justify-center"
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-[#102448]/80 backdrop-blur-md border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive shadow-xs text-[#102A56] dark:text-[#F5F7FF] relative cursor-pointer"
                   title="My Cart"
                   aria-label="My Cart"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-blue-600 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-md">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
@@ -242,11 +243,11 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex-1 relative group z-20" ref={searchContainerRef}>
               <div className="relative w-full transition-all duration-300 transform">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-gray-400 group-focus-within:text-brand-500 transition-colors" />
+                    <Search className="h-4 w-4 text-blue-500 dark:text-cyan-400 transition-colors" />
                   </div>
                   <input
                     type="text"
-                    className="block w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-slate-700 rounded-lg leading-5 bg-gray-50 dark:bg-slate-800 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all duration-300 sm:text-sm"
+                    className="block w-full pl-11 pr-4 py-2.5 rounded-full leading-5 bg-white/80 dark:bg-[#102448]/70 backdrop-blur-md border border-[var(--glow-border-subtle)] focus:border-[var(--glow-border)] focus:shadow-[var(--glow-shadow)] placeholder-[#7889A8] dark:placeholder-[#8294B8] text-[#102A56] dark:text-[#F5F7FF] focus:outline-none transition-all duration-300 text-sm shadow-inner"
                     placeholder={t('searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => {
@@ -259,13 +260,13 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Suggestions Dropdown */}
               {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="glow-card absolute top-full left-0 right-0 mt-2 bg-white/95 dark:bg-[#102448]/95 backdrop-blur-xl rounded-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-30">
                       <ul>
                           {suggestions.map((item) => (
                               <li 
                                 key={item.product.id}
                                 onClick={() => handleSuggestionClick(item.product.name)}
-                                className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer border-b border-gray-50 dark:border-slate-700 last:border-none flex items-center justify-between group"
+                                className="px-4 py-3 hover:bg-blue-500/10 dark:hover:bg-cyan-400/10 cursor-pointer border-b border-[var(--glow-border-subtle)] last:border-none flex items-center justify-between group"
                               >
                                   <div className="flex items-center gap-3 overflow-hidden">
                                     {/* Small thumbnail */}
@@ -273,11 +274,11 @@ export const Header: React.FC<HeaderProps> = ({
                                         <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex flex-col min-w-0">
-                                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate" dangerouslySetInnerHTML={{
+                                        <span className="text-sm font-medium text-[#102A56] dark:text-[#F5F7FF] truncate" dangerouslySetInnerHTML={{
                                             __html: item.product.name.replace(new RegExp(searchQuery, 'gi'), (match) => `<b>${match}</b>`)
                                         }}></span>
                                         
-                                        <span className="text-xs text-brand-600 dark:text-brand-400 truncate">
+                                        <span className="text-xs text-brand-600 dark:text-cyan-400 truncate">
                                             {item.matchType === 'category' ? `in ${item.product.categories[0]}` : (item.product.categories[0] || 'Product')}
                                         </span>
                                     </div>
@@ -295,13 +296,13 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenWishlist}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-gray-700 dark:text-gray-200 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all font-semibold text-sm relative group border border-gray-200/80 dark:border-slate-700/80"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/70 dark:bg-[#102448]/70 backdrop-blur-md text-[#102A56] dark:text-[#F5F7FF] hover:text-pink-500 border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive transition-all font-semibold text-sm relative group shadow-xs cursor-pointer"
                 title="My Wishlist"
               >
                 <div className="relative">
-                  <Heart className={`w-4 h-4 transition-transform group-hover:scale-110 ${wishlistCount > 0 ? 'text-red-500 fill-red-500' : ''}`} />
+                  <Heart className={`w-4 h-4 transition-transform group-hover:scale-110 ${wishlistCount > 0 ? 'text-pink-500 fill-pink-500' : 'text-pink-500'}`} />
                   {wishlistCount > 0 && (
-                    <span className="absolute -top-2 -right-2.5 min-w-[16px] h-[16px] px-0.5 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                    <span className="absolute -top-2 -right-2.5 min-w-[16px] h-[16px] px-0.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
                       {wishlistCount > 99 ? '99+' : wishlistCount}
                     </span>
                   )}
@@ -312,13 +313,13 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenCart}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all font-bold text-sm relative shadow-xs border border-blue-200/60 dark:border-blue-800/60"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/70 dark:bg-[#102448]/70 backdrop-blur-md text-[#102A56] dark:text-[#F5F7FF] hover:text-blue-600 dark:hover:text-cyan-400 border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive transition-all font-bold text-sm relative shadow-xs cursor-pointer"
                 title="My Cart"
               >
                 <div className="relative">
                   <ShoppingCart className="w-4 h-4" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2.5 min-w-[16px] h-[16px] px-0.5 bg-blue-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                    <span className="absolute -top-2 -right-2.5 min-w-[16px] h-[16px] px-0.5 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
@@ -329,9 +330,9 @@ export const Header: React.FC<HeaderProps> = ({
 
           </div>
 
-          {/* Bottom Row: Text Pills Categories (Professional Layout) */}
-          <div className="bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800">
-            <div className="flex overflow-x-auto no-scrollbar py-3 px-3 space-x-2 md:space-x-3 items-center min-w-full">
+          {/* Bottom Row: Text Pills Categories */}
+          <div className="bg-transparent border-b border-[rgba(92,137,220,0.1)] dark:border-[rgba(100,160,255,0.12)]">
+            <div className="flex overflow-x-auto no-scrollbar py-2.5 px-3 space-x-2 md:space-x-3 items-center min-w-full">
               {CATEGORY_DETAILS.map((cat) => {
                  const isActive = activeCategory === cat.id;
                  
@@ -339,10 +340,10 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     key={cat.id}
                     onClick={() => onCategoryChange(cat.id)}
-                    className={`px-4 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200 whitespace-nowrap border ${
+                    className={`px-5 py-2 rounded-full text-xs md:text-sm font-semibold transition-all duration-200 whitespace-nowrap cursor-pointer ${
                         isActive 
-                        ? 'bg-brand-600 border-brand-600 text-white shadow-md' 
-                        : 'bg-gray-50 dark:bg-slate-800 border-gray-100 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700'
+                        ? 'glow-btn-primary text-white border-white/20' 
+                        : 'glow-subtle bg-white/75 dark:bg-[#102448]/60 backdrop-blur-md text-[#102A56] dark:text-[#B8C7E8] hover:border-[var(--glow-border)] hover:bg-white dark:hover:bg-[#102448]/90 dark:hover:text-white'
                     }`}
                   >
                         {getTranslatedCategory(cat.id)}

@@ -222,18 +222,18 @@ export const GoogleMapSelectorModal: React.FC<GoogleMapSelectorModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[120] bg-white dark:bg-slate-950 flex flex-col animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[120] bg-[#F7F9FF] dark:bg-[#071329] flex flex-col animate-in fade-in duration-200 transition-colors">
       
       {/* Top Header */}
-      <div className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between shadow-md z-20">
-        <div className="flex items-center gap-2">
-          <MapPin className="w-5 h-5" />
-          <h2 className="text-sm font-bold">Select Delivery Location on Map</h2>
+      <div className="bg-gradient-to-r from-[#6C3BFF] via-[#4F46E5] to-[#2589FF] text-white px-4 py-3.5 flex items-center justify-between shadow-md z-20">
+        <div className="flex items-center gap-2.5">
+          <MapPin className="w-5 h-5 text-cyan-300" />
+          <h2 className="text-sm font-bold tracking-tight">Select Delivery Location on Map</h2>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
+          className="w-8 h-8 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -242,29 +242,29 @@ export const GoogleMapSelectorModal: React.FC<GoogleMapSelectorModalProps> = ({
       {/* Map Container */}
       <div className="flex-1 relative">
         <div className="absolute top-4 left-4 right-4 z-[400]">
-          <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-            <div className="flex items-center px-3 py-2.5">
-              <Search className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
+          <div className="relative bg-white/90 dark:bg-[#102448]/90 backdrop-blur-xl rounded-2xl shadow-xl border border-[rgba(92,137,220,0.25)] dark:border-[rgba(100,160,255,0.28)] overflow-hidden">
+            <div className="flex items-center px-3.5 py-2.5">
+              <Search className="w-4 h-4 text-blue-500 dark:text-cyan-400 mr-2 flex-shrink-0" />
               <input 
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search place, street, area, or PIN code..."
-                className="w-full text-xs bg-transparent text-gray-900 dark:text-white focus:outline-none"
+                className="w-full text-xs bg-transparent text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none"
               />
-              {isSearching && <Loader2 className="w-3.5 h-3.5 text-blue-600 animate-spin flex-shrink-0 ml-2" />}
+              {isSearching && <Loader2 className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400 animate-spin flex-shrink-0 ml-2" />}
             </div>
 
             {predictions.length > 0 && (
-              <div className="border-t border-gray-100 dark:border-slate-800 max-h-60 overflow-y-auto bg-white dark:bg-slate-900">
+              <div className="border-t border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.22)] max-h-60 overflow-y-auto bg-white/95 dark:bg-[#102448]/95 backdrop-blur-xl">
                 {predictions.map((pred, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => handleSelectPrediction(pred)}
-                    className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-800 text-xs text-gray-700 dark:text-gray-300 border-b border-gray-50 dark:border-slate-800 flex items-center gap-2 cursor-pointer"
+                    className="w-full text-left px-4 py-2.5 hover:bg-blue-500/10 text-xs text-[#102A56] dark:text-[#F5F7FF] border-b border-[rgba(92,137,220,0.12)] dark:border-[rgba(100,160,255,0.15)] flex items-center gap-2 cursor-pointer"
                   >
-                    <MapPin className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                    <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400 flex-shrink-0" />
                     <span className="truncate">{pred.display_name}</span>
                   </button>
                 ))}
@@ -276,19 +276,19 @@ export const GoogleMapSelectorModal: React.FC<GoogleMapSelectorModalProps> = ({
         <div ref={mapRef} style={{ width: '100%', height: '100%', zIndex: 10 }} />
 
         {resolvedAddress && (
-          <div className="absolute bottom-20 left-4 right-4 z-[400] bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm p-3 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700 text-xs text-gray-800 dark:text-gray-200 flex items-center justify-between gap-3">
+          <div className="absolute bottom-20 left-4 right-4 z-[400] bg-white/90 dark:bg-[#102448]/90 backdrop-blur-xl p-3.5 rounded-2xl shadow-xl border border-[rgba(92,137,220,0.25)] dark:border-[rgba(100,160,255,0.28)] text-xs text-[#102A56] dark:text-[#F5F7FF] flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
-              <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
-              <p className="truncate font-medium">{resolvedAddress}</p>
+              <MapPin className="w-5 h-5 text-blue-600 dark:text-cyan-400 flex-shrink-0" />
+              <p className="truncate font-semibold">{resolvedAddress}</p>
             </div>
-            {isResolving && <Loader2 className="w-4 h-4 text-blue-600 animate-spin flex-shrink-0" />}
+            {isResolving && <Loader2 className="w-4 h-4 text-blue-600 dark:text-cyan-400 animate-spin flex-shrink-0" />}
           </div>
         )}
       </div>
 
       {/* Bottom Footer Action */}
-      <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between gap-4 z-20">
-        <div className="text-xs text-gray-500 dark:text-gray-400">
+      <div className="p-4 bg-white/80 dark:bg-[#102448]/80 backdrop-blur-xl border-t border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.22)] flex items-center justify-between gap-4 z-20">
+        <div className="text-xs text-[#526B98] dark:text-[#8294B8]">
           Tap or drag marker on map to set precise location.
         </div>
         <button
@@ -300,7 +300,7 @@ export const GoogleMapSelectorModal: React.FC<GoogleMapSelectorModalProps> = ({
               onClose();
             }
           }}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-bold text-xs rounded-xl shadow-md transition-transform active:scale-95 cursor-pointer uppercase tracking-wider flex items-center gap-2"
+          className="px-6 py-3 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] hover:brightness-110 disabled:opacity-40 text-white font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-95 cursor-pointer uppercase tracking-wider flex items-center gap-2 border border-white/20"
         >
           <Check className="w-4 h-4" />
           <span>Use This Location</span>

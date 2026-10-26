@@ -150,70 +150,82 @@ export const TrendingBanner: React.FC<TrendingBannerProps> = ({ products, onProd
     <div className="mb-4 px-2">
       <div 
         onClick={() => onProductClick(currentProduct.id)}
-        className={`relative w-full h-[200px] sm:h-[260px] bg-gradient-to-r ${currentGradient} rounded-2xl overflow-hidden shadow-md group transition-colors duration-700 cursor-pointer select-none ring-2 ring-white/20`}
+        className="glow-featured relative w-full h-[210px] sm:h-[265px] bg-gradient-to-br from-[#EAF3FF] via-[#E2EEFF] to-[#F1F6FF] dark:bg-gradient-to-br dark:from-[#091D42] dark:via-[#071635] dark:to-[#040D20] rounded-[28px] overflow-hidden group cursor-pointer select-none"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 2px, transparent 2px)', backgroundSize: '24px 24px' }}></div>
-        <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+        {/* Background Pattern - subtle luminous grid dots matching reference */}
+        <div className="absolute inset-0 opacity-20 dark:opacity-25" style={{ backgroundImage: 'radial-gradient(circle, #00D9FF 1.5px, transparent 1.5px)', backgroundSize: '22px 22px' }}></div>
+        <div className="absolute -right-12 -top-12 w-56 h-56 bg-cyan-400/20 dark:bg-cyan-400/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -left-12 -bottom-12 w-48 h-48 bg-blue-500/15 dark:bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
         
         {/* Bottom Gradient for Controls Visibility */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/60 to-transparent z-20 pointer-events-none rounded-b-2xl"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/50 dark:from-black/70 to-transparent z-20 pointer-events-none rounded-b-[28px]"></div>
 
         {/* Main Content Area */}
-        <div className="flex h-full relative z-10 pb-10 sm:pb-8">
+        <div className="flex h-full relative z-10 pb-12 sm:pb-9">
           
-          {/* Left: Text Content - Matches BestOfferBanner layout logic */}
-          <div className="w-[60%] sm:w-[55%] pl-4 sm:pl-8 flex flex-col justify-center h-full relative z-20">
-            <div className="bg-black/20 backdrop-blur-sm inline-block px-2 py-0.5 rounded-full text-white text-[10px] font-bold mb-2 self-start border border-white/10 uppercase tracking-wider">
-              #{currentIndex + 1} Trending
+          {/* Left: Text Content */}
+          <div className="w-[58%] sm:w-[55%] pl-4 sm:pl-7 flex flex-col justify-center h-full relative z-20">
+            <div className="bg-gradient-to-r from-[#00D9FF] to-[#2589FF] text-white font-black text-[10px] sm:text-xs px-3.5 py-1 rounded-full shadow-sm uppercase tracking-wider mb-2.5 self-start border border-white/30">
+              #{currentIndex + 1} TRENDING
             </div>
             
-            <h2 className="text-base sm:text-2xl font-black text-white leading-tight drop-shadow-md line-clamp-2 mb-2 pr-1">
+            <h2 className="text-base sm:text-2xl font-black text-[#102A56] dark:text-white leading-tight drop-shadow-xs line-clamp-2 mb-3 pr-1">
               {currentProduct.name}
             </h2>
 
-            {/* Dynamic Label Area */}
-            <div className="mb-2 scale-[0.9] origin-left sm:scale-100">
-                {renderOfferLabel(currentProduct, currentIndex)}
+            {/* Dynamic Label Area: Discount and Price Pill */}
+            <div className="mb-2 scale-[0.9] origin-left sm:scale-100 flex items-center gap-2">
+                {currentProduct.offer && (
+                  <div className="bg-gradient-to-r from-[#FF2B6D] to-[#FF4D80] text-white font-black text-xs sm:text-sm px-3 py-1.5 rounded-xl shadow-xs border border-white/20">
+                    {currentProduct.offer}
+                  </div>
+                )}
+                {currentProduct.price && (
+                  <div className="bg-white/95 dark:bg-[#0C1F42]/95 backdrop-blur-md text-[#102A56] dark:text-white font-black text-sm sm:text-lg px-3.5 py-1.5 rounded-xl border border-[var(--glow-border-subtle)] shadow-xs">
+                    {formatPrice(currentProduct.price)}
+                  </div>
+                )}
             </div>
           </div>
 
-          {/* Right: Floating Product Image - Adjusted to match BestOfferBanner proportions */}
-          <div className="w-[40%] sm:w-[45%] h-full relative flex items-center justify-center pr-2">
-             <div className="absolute w-28 h-28 sm:w-48 sm:h-48 bg-white/20 rounded-full blur-3xl animate-pulse"></div>
+          {/* Right: Floating Product Image in Rounded White Frame */}
+          <div className="w-[42%] sm:w-[45%] h-full relative flex items-center justify-center pr-3 sm:pr-6">
+             <div className="absolute w-28 h-28 sm:w-44 sm:h-44 bg-cyan-400/25 dark:bg-cyan-400/15 rounded-full blur-2xl animate-pulse"></div>
              
-             {/* Image Container with Curve */}
-             <div className="relative transform transition-transform duration-700 ease-out hover:scale-105 hover:-rotate-1">
-                 <img 
-                   src={displayImage} 
-                   alt={currentProduct.name}
-                   className="h-36 sm:h-52 w-auto object-contain rounded-2xl drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)] bg-white/5 backdrop-blur-sm border border-white/10 p-1"
-                 />
+             {/* Image Container with crisp white box */}
+             <div className="relative transform transition-transform duration-500 ease-out hover:scale-105">
+                 <div className="bg-white rounded-[22px] p-2.5 sm:p-3 shadow-xl border border-white/60">
+                   <img 
+                     src={displayImage} 
+                     alt={currentProduct.name}
+                     className="h-32 sm:h-48 w-auto object-contain rounded-xl"
+                   />
+                 </div>
              </div>
           </div>
         </div>
 
         {/* Bottom Area: Controls (Dots + Check Deal Button) */}
-        <div className="absolute bottom-0 left-0 right-0 px-4 py-3 flex items-center justify-between z-30">
+        <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 py-3 flex items-center justify-between z-30">
            
-           {/* Check Deal Button - Styled nicely */}
+           {/* Check Deal Button */}
            <button 
-             className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 px-4 py-1.5 rounded-full font-bold text-[10px] sm:text-xs shadow-lg transition-all active:scale-95 flex items-center gap-1.5 group/btn border border-white/20"
+             className="glow-btn-primary text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
            >
               <span>Check Deal</span>
-              <ChevronRight className="w-3 h-3 text-gray-500 group-hover/btn:text-gray-900 transition-colors" />
+              <ChevronRight className="w-3.5 h-3.5 text-white" />
            </button>
 
-           {/* Indicators */}
-           <div className="flex gap-1.5 bg-black/20 backdrop-blur-md px-2 py-1 rounded-full border border-white/10" onClick={(e) => e.stopPropagation()}>
+           {/* Indicators with subtle cyan outline */}
+           <div className="flex gap-1.5 bg-black/35 dark:bg-black/50 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[var(--glow-border-subtle)]" onClick={(e) => e.stopPropagation()}>
              {topProducts.map((_, idx) => (
                <button 
                  key={idx} 
                  onClick={(e) => handleManualSlide(e, idx)}
-                 className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-4 bg-white shadow-sm' : 'w-1.5 bg-white/40 hover:bg-white/60'}`}
+                 className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-5 bg-white shadow-xs' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
                  aria-label={`Go to slide ${idx + 1}`}
                />
              ))}

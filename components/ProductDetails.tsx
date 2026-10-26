@@ -250,19 +250,19 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   };
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-[60] bg-white dark:bg-slate-900 overflow-y-auto animate-in slide-in-from-bottom-10 duration-200 no-scrollbar transition-colors duration-300">
+    <div ref={containerRef} className="fixed inset-0 z-[60] bg-[#F7F9FF] dark:bg-[#071329] overflow-y-auto animate-in slide-in-from-bottom-10 duration-200 no-scrollbar transition-colors duration-300">
       
       {/* Navbar */}
-      <div className="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3">
+      <div className="sticky top-0 z-50 bg-[#F7F9FF]/85 dark:bg-[#071329]/85 backdrop-blur-xl border-b border-[var(--glow-border-subtle)] px-4 py-2.5 flex items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <button 
             onClick={onBack}
-            className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 transition-colors flex-shrink-0"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-[#102448]/80 text-[#102A56] dark:text-[#F5F7FF] border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive transition-all flex-shrink-0 cursor-pointer"
             title="Back"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
           </button>
-          <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 truncate">{product.name}</h1>
+          <h1 className="text-base sm:text-lg font-bold text-[#102A56] dark:text-[#F5F7FF] truncate">{product.name}</h1>
         </div>
 
         {/* Quick Wishlist & Cart Shortcuts */}
@@ -270,13 +270,13 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
           <button
             type="button"
             onClick={onOpenWishlist}
-            className="p-2 text-gray-700 dark:text-gray-200 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all relative flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-[#102448]/80 text-pink-500 border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive transition-all relative cursor-pointer"
             title="My Wishlist"
             aria-label="My Wishlist"
           >
-            <Heart className={`w-5 h-5 ${isInWishlist || wishlistProductIds.length > 0 ? 'text-red-500 fill-red-500' : ''}`} />
+            <Heart className={`w-5 h-5 ${isInWishlist || wishlistProductIds.length > 0 ? 'text-pink-500 fill-pink-500' : 'text-pink-500'}`} />
             {wishlistProductIds.length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
+              <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
                 {wishlistProductIds.length > 99 ? '99+' : wishlistProductIds.length}
               </span>
             )}
@@ -285,13 +285,13 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
           <button
             type="button"
             onClick={onOpenCart}
-            className="p-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all relative flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-[#102448]/80 text-[#102A56] dark:text-[#F5F7FF] border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive transition-all relative cursor-pointer"
             title="My Cart"
             aria-label="My Cart"
           >
             <ShoppingCart className="w-5 h-5" />
             {cartProductIds.length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-blue-600 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
+              <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
                 {cartProductIds.length > 99 ? '99+' : cartProductIds.length}
               </span>
             )}
@@ -301,9 +301,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
       <div className="max-w-3xl mx-auto pb-32">
         
-        {/* Image Carousel - Forced white background */}
+        {/* Image Carousel - Forced white background with subtle border */}
         <div 
-          className="relative aspect-square bg-white border-b border-gray-100 dark:border-slate-800 overflow-hidden group"
+          className="relative aspect-square bg-white border-b border-[var(--glow-border-subtle)] overflow-hidden group"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -325,13 +325,13 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               }}
               title={isInWishlist ? "Remove from My Wishlist" : "Add to My Wishlist"}
               aria-label="My Wishlist"
-              className="w-10 h-10 rounded-2xl bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm shadow-md hover:shadow-lg border border-gray-100 dark:border-slate-700/60 flex items-center justify-center transition-all duration-200 active:scale-90"
+              className="w-10 h-10 rounded-2xl bg-white/95 dark:bg-[#102448]/95 backdrop-blur-md shadow-md hover:shadow-lg border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive flex items-center justify-center cursor-pointer"
             >
               <Heart 
                 className={`w-5 h-5 transition-transform duration-200 ${
                   isInWishlist 
-                    ? 'text-red-500 fill-red-500 scale-110' 
-                    : 'text-gray-700 dark:text-gray-200 hover:text-red-500'
+                    ? 'text-pink-500 fill-pink-500 scale-110' 
+                    : 'text-gray-700 dark:text-gray-200 hover:text-pink-500'
                 }`} 
               />
             </button>
@@ -345,17 +345,17 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               }}
               title="Share"
               aria-label="Share"
-              className="w-10 h-10 rounded-2xl bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm shadow-md hover:shadow-lg border border-gray-100 dark:border-slate-700/60 flex items-center justify-center transition-all duration-200 active:scale-90"
+              className="w-10 h-10 rounded-2xl bg-white/95 dark:bg-[#102448]/95 backdrop-blur-md shadow-md hover:shadow-lg border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive flex items-center justify-center cursor-pointer"
             >
               <Send className="w-5 h-5 text-gray-700 dark:text-gray-200 -rotate-12 translate-x-[-1px] translate-y-[-1px]" />
             </button>
           </div>
 
-          {/* Floating Bottom-Left Rating Badge (like screenshot: 4.4 ★ | 7.6K+) */}
+          {/* Floating Bottom-Left Rating Badge */}
           <div className="absolute bottom-3.5 left-3.5 z-10 pointer-events-none">
-            <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-bold text-gray-800 dark:text-gray-200 shadow-sm border border-gray-100 dark:border-slate-700/80 flex items-center gap-1.5">
+            <div className="glow-subtle bg-white/95 dark:bg-[#102448]/95 backdrop-blur-md px-3 py-1 rounded-xl text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 shadow-sm">
               <span className="text-gray-900 dark:text-white font-black">4.4</span>
-              <span className="text-emerald-600 text-xs">★</span>
+              <span className="text-emerald-500 text-xs">★</span>
               <span className="text-gray-300 dark:text-gray-600">|</span>
               <span className="text-gray-500 dark:text-gray-400 font-medium">7.6K+</span>
             </div>
@@ -448,12 +448,12 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
             <div className="space-y-6">
               
               {product.highlights && product.highlights.length > 0 && (
-                <div className="bg-gradient-to-br from-brand-50/50 to-white dark:from-brand-900/20 dark:to-slate-800 rounded-xl p-5 sm:p-6 border border-brand-100 dark:border-brand-900 shadow-sm overflow-hidden relative">
-                   <div className="absolute -top-10 -right-10 w-24 h-24 bg-brand-100/50 dark:bg-brand-900/30 rounded-full blur-2xl pointer-events-none"></div>
+                <div className="glow-card rounded-[24px] p-5 sm:p-6 overflow-hidden relative">
+                   <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-r from-[#6C3BFF]/20 to-[#2589FF]/20 rounded-full blur-2xl pointer-events-none"></div>
 
-                   <h4 className="text-sm font-bold text-brand-800 dark:text-brand-300 uppercase tracking-wide mb-4 flex items-center gap-2">
-                      <span className="bg-brand-100 dark:bg-brand-900/50 p-1 rounded text-brand-600 dark:text-brand-400">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                   <h4 className="text-sm font-bold text-[#102A56] dark:text-[#F5F7FF] uppercase tracking-wide mb-4 flex items-center gap-2">
+                      <span className="bg-gradient-to-r from-[#6C3BFF]/15 to-[#2589FF]/20 p-1.5 rounded-xl text-blue-600 dark:text-cyan-400 border border-blue-400/25">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                       </span>
                       {t('highlights')}
                    </h4>
@@ -461,11 +461,11 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                      {product.highlights.map((point, index) => (
                        <li 
                          key={index} 
-                         className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300 animate-fade-in-up opacity-0"
+                         className="flex items-start gap-3 text-sm text-[#102A56] dark:text-[#F5F7FF] animate-fade-in-up opacity-0"
                          style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'forwards' }}
                        >
-                         <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shadow-sm flex-shrink-0 ring-4 ring-brand-50/50 dark:ring-brand-900/50"></div>
-                         <span className="leading-relaxed font-medium">{point}</span>
+                         <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#2589FF] shadow-sm flex-shrink-0 ring-4 ring-blue-500/20"></div>
+                         <span className="leading-relaxed font-normal">{point}</span>
                        </li>
                      ))}
                    </ul>
@@ -473,19 +473,19 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               )}
 
               {/* Description with Show More/Less */}
-              <div className="bg-white dark:bg-slate-800 rounded-xl p-5 sm:p-6 border border-gray-100 dark:border-slate-700 shadow-sm relative group hover:border-gray-200 dark:hover:border-slate-600 transition-colors">
-                 <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide mb-3 flex items-center gap-2">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+              <div className="glow-card rounded-[24px] p-5 sm:p-6 relative group transition-colors">
+                 <h4 className="text-sm font-bold text-[#102A56] dark:text-[#F5F7FF] uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <svg className="w-4 h-4 text-[#526B98] dark:text-[#8294B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
                     {t('description')}
                  </h4>
-                 <div className={`prose prose-sm prose-blue dark:prose-invert text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line ${isDescriptionExpanded ? '' : 'line-clamp-3'}`}>
+                 <div className={`prose prose-sm prose-blue dark:prose-invert text-[#526B98] dark:text-[#B8C7E8] leading-relaxed whitespace-pre-line ${isDescriptionExpanded ? '' : 'line-clamp-3'}`}>
                    {product.description}
                  </div>
                  
                  {product.description && product.description.length > 100 && (
                      <button 
                         onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                        className="mt-3 text-brand-600 dark:text-brand-400 text-sm font-bold flex items-center gap-1 hover:underline focus:outline-none"
+                        className="mt-3 text-[#2589FF] dark:text-cyan-400 text-sm font-bold flex items-center gap-1 hover:underline focus:outline-none cursor-pointer"
                      >
                         {isDescriptionExpanded ? (
                             <>Show Less <ChevronUp className="w-4 h-4" /></>
@@ -500,7 +500,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
             
           {/* SUGGESTED SECTION */}
           {suggestedProducts.length > 0 && (
-            <div className="pt-6 border-t border-gray-100 dark:border-slate-800 mt-8">
+            <div className="pt-6 border-t border-[var(--glow-border-subtle)] mt-8">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('suggestedForYou')}</h3>
                 <div className="flex overflow-x-auto gap-3 pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 no-scrollbar snap-x snap-mandatory">
                     {suggestedProducts.map(p => (
@@ -529,7 +529,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       {/* Toast Notification like Image 1: "Product is added to My Wishlist" with "CHANGE" button */}
       {showWishlistToast && (
         <div className="fixed bottom-24 left-3 right-3 sm:left-6 sm:right-6 max-w-md mx-auto z-[70] animate-in slide-in-from-bottom-5 duration-200">
-          <div className="bg-[#202124] text-white px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between border border-gray-800">
+          <div className="bg-[#0B1935]/95 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center justify-between border border-[var(--glow-border)] shadow-[var(--glow-shadow)]">
             <div className="flex items-center gap-2.5">
               <Heart className="w-4 h-4 text-red-500 fill-red-500 flex-shrink-0" />
               <span className="text-sm font-medium text-gray-100">
@@ -544,7 +544,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   onOpenWishlist();
                 }
               }}
-              className="text-[#f59e0b] hover:text-[#fbbf24] font-bold text-xs sm:text-sm tracking-wider uppercase pl-3 pr-1 py-1 transition-colors active:scale-95 cursor-pointer"
+              className="text-cyan-400 hover:text-cyan-300 font-bold text-xs sm:text-sm tracking-wider uppercase pl-3 pr-1 py-1 transition-colors active:scale-95 cursor-pointer"
             >
               CHANGE
             </button>
@@ -552,16 +552,16 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
         </div>
       )}
 
-      <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] z-40 safe-pb">
+      <div className="fixed bottom-0 left-0 right-0 p-3.5 sm:p-4 bg-white/85 dark:bg-[#071329]/85 backdrop-blur-2xl border-t border-[var(--glow-border-subtle)] shadow-[0_-8px_30px_rgba(0,190,255,0.12)] z-40 safe-pb">
         <div className="max-w-3xl mx-auto flex items-center gap-3">
            {onToggleCart && (
              <button
                type="button"
                onClick={() => onToggleCart(product.id)}
-               className={`flex items-center justify-center gap-2 py-3.5 px-4 sm:px-6 rounded-xl border font-bold text-sm transition-all active:scale-95 ${
+               className={`flex items-center justify-center gap-2 py-3.5 px-5 sm:px-7 rounded-full font-bold text-sm transition-all active:scale-95 shadow-xs cursor-pointer ${
                  isInCart
-                   ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-600 dark:text-blue-400'
-                   : 'bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700'
+                   ? 'glow-interactive bg-gradient-to-r from-[#6C3BFF]/20 to-[#2589FF]/25 border-cyan-400 text-blue-600 dark:text-cyan-300'
+                   : 'glow-interactive bg-white/80 dark:bg-[#102448]/80 text-[#102A56] dark:text-[#F5F7FF] hover:bg-white dark:hover:bg-[#102448]'
                }`}
              >
                <ShoppingCart className="w-5 h-5" />
@@ -571,7 +571,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
            <button 
              onClick={onBuy}
-             className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-base sm:text-lg py-3.5 px-6 rounded-xl shadow-md text-center transition-all active:scale-95 animate-pulse hover:animate-none flex items-center justify-center gap-2"
+             className="flex-1 glow-btn-primary font-black text-base sm:text-lg py-3.5 px-6 rounded-full shadow-lg text-center transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
            >
              <span>{t('buyNow')}</span>
              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>

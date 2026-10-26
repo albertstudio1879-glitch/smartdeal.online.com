@@ -122,19 +122,22 @@ export const ShareModal: React.FC<ShareModalProps> = ({ product, onClose }) => {
       `}</style>
 
       <div 
-        className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] cursor-default"
+        className="relative w-full max-w-sm glow-card rounded-[24px] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Header / Close */}
-        <div className="flex justify-between items-center p-3 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 z-10">
-            <h3 className="font-bold text-gray-800 dark:text-gray-100 text-sm">Share Product</h3>
-            <button onClick={onClose} className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
-                <X className="w-5 h-5 text-gray-500" />
+        <div className="flex justify-between items-center p-3.5 border-b border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.22)] bg-white/80 dark:bg-[#102448]/80 backdrop-blur-xl z-10">
+            <h3 className="font-bold text-[#102A56] dark:text-[#F5F7FF] text-sm">Share Product</h3>
+            <button 
+              onClick={onClose} 
+              className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100/70 dark:bg-slate-800/70 text-[#526B98] dark:text-[#B8C7E8] hover:opacity-80 transition-opacity cursor-pointer"
+            >
+                <X className="w-4 h-4" />
             </button>
         </div>
 
-        <div className="overflow-y-auto p-4 bg-gray-50 dark:bg-slate-950/50 flex items-center justify-center">
+        <div className="overflow-y-auto p-4 bg-[#F7F9FF]/60 dark:bg-[#071329]/60 flex items-center justify-center">
             
             {/* The Compact Printable Card */}
             <div 
@@ -144,7 +147,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ product, onClose }) => {
             >
                 
                 {/* Branding */}
-                <h2 className="text-[18px] font-bold text-[#0ea5e9] tracking-tight mb-1">SMART DEAL ONLINE</h2>
+                <h2 className="text-[18px] font-bold text-[#2589FF] tracking-tight mb-1">SMART DEAL ONLINE</h2>
                 <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-500 mb-3">
                     <Globe className="w-3 h-3" />
                     <span>smartdeal-online-com.vercel.app</span>
@@ -171,7 +174,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ product, onClose }) => {
                 <div className="flex justify-center mb-4">
                     <button 
                         onClick={handleCopyCode}
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg flex items-center gap-2 border border-gray-200 transition-colors"
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg flex items-center gap-2 border border-gray-200 transition-colors cursor-pointer"
                         title="Click to copy code"
                     >
                         <span className="text-[11px] text-gray-500">Code :</span>
@@ -221,21 +224,21 @@ export const ShareModal: React.FC<ShareModalProps> = ({ product, onClose }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="p-3 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 space-y-2 z-10">
+        <div className="p-3 bg-white/80 dark:bg-[#071329]/80 backdrop-blur-xl border-t border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.22)] space-y-2.5 z-10">
             <div className="grid grid-cols-4 gap-2">
-                <button onClick={shareToWhatsapp} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400 transition-colors">
+                <button onClick={shareToWhatsapp} className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-green-500/10 text-emerald-600 dark:text-emerald-400 transition-colors cursor-pointer">
                     <MessageCircle className="w-5 h-5" />
                     <span className="text-[9px] font-medium">WhatsApp</span>
                 </button>
-                <button onClick={shareToFacebook} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors">
+                <button onClick={shareToFacebook} className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-blue-500/10 text-blue-600 dark:text-cyan-400 transition-colors cursor-pointer">
                     <Facebook className="w-5 h-5" />
                     <span className="text-[9px] font-medium">Facebook</span>
                 </button>
-                <button onClick={handleSystemShare} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors">
+                <button onClick={handleSystemShare} className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-red-500/10 text-red-500 transition-colors cursor-pointer">
                     <Share2 className="w-5 h-5" />
                     <span className="text-[9px] font-medium">Share</span>
                 </button>
-                <button onClick={handleDownload} disabled={isDownloading} className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 text-purple-600 dark:text-purple-400 transition-colors">
+                <button onClick={handleDownload} disabled={isDownloading} className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-purple-500/10 text-purple-600 dark:text-purple-400 transition-colors cursor-pointer">
                     {isDownloading ? (
                         <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
                     ) : (
@@ -249,7 +252,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ product, onClose }) => {
                 href={product.affiliateLink} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-center py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 text-xs"
+                className="w-full bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] hover:opacity-95 text-white font-bold text-center py-3 rounded-full transition-all flex items-center justify-center gap-2 text-xs shadow-md shadow-blue-500/25"
             >
                 <span>Buy Now</span>
                 <Link className="w-3.5 h-3.5" />

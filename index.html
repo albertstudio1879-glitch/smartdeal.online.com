@@ -88,6 +88,24 @@
         --gradient-secondary: linear-gradient(135deg, #00D9B8, #00B887);
         --gradient-accent: linear-gradient(135deg, #FF4D91, #FFB547);
         --gradient-sky: linear-gradient(135deg, #39A5FF, #75DFFF);
+
+        /* Glowing Border System - Light Mode */
+        --glow-cyan: #00D9FF;
+        --glow-blue: #2589FF;
+        --glow-purple: #6C3BFF;
+
+        --glow-border-subtle: rgba(0, 160, 255, 0.28);
+        --glow-border: rgba(0, 175, 255, 0.52);
+        --glow-border-hover: rgba(0, 190, 255, 0.85);
+        --glow-border-featured: rgba(0, 185, 255, 0.75);
+
+        --glow-shadow-subtle: 0 0 6px rgba(0, 160, 255, 0.1), 0 2px 8px rgba(37, 137, 255, 0.05);
+        --glow-shadow: 0 0 8px rgba(0, 175, 255, 0.16), 0 0 20px rgba(37, 137, 255, 0.1);
+        --glow-shadow-hover: 0 0 12px rgba(0, 190, 255, 0.28), 0 0 26px rgba(37, 137, 255, 0.18);
+        --glow-shadow-featured: 0 0 14px rgba(0, 190, 255, 0.26), 0 0 30px rgba(37, 137, 255, 0.16);
+        --glow-shadow-featured-hover: 0 0 18px rgba(0, 217, 255, 0.38), 0 0 38px rgba(37, 137, 255, 0.24);
+        --glow-btn-shadow: 0 0 12px rgba(37, 137, 255, 0.28), 0 0 24px rgba(108, 59, 255, 0.18);
+        --glow-radius: 24px;
       }
 
       .dark,
@@ -106,6 +124,24 @@
         --gradient-secondary: linear-gradient(135deg, #00D9B8, #00B887);
         --gradient-accent: linear-gradient(135deg, #FF4D91, #FFB547);
         --gradient-sky: linear-gradient(135deg, #39A5FF, #75DFFF);
+
+        /* Glowing Border System - Dark Mode (matching reference image) */
+        --glow-cyan: #00D9FF;
+        --glow-blue: #2589FF;
+        --glow-purple: #6C3BFF;
+
+        --glow-border-subtle: rgba(0, 190, 255, 0.38);
+        --glow-border: rgba(0, 217, 255, 0.72);
+        --glow-border-hover: rgba(0, 235, 255, 0.95);
+        --glow-border-featured: rgba(0, 217, 255, 0.85);
+
+        --glow-shadow-subtle: 0 0 8px rgba(0, 217, 255, 0.16), 0 0 16px rgba(37, 137, 255, 0.1);
+        --glow-shadow: 0 0 10px rgba(0, 217, 255, 0.22), 0 0 22px rgba(37, 137, 255, 0.16);
+        --glow-shadow-hover: 0 0 14px rgba(0, 235, 255, 0.38), 0 0 30px rgba(37, 137, 255, 0.28);
+        --glow-shadow-featured: 0 0 16px rgba(0, 217, 255, 0.35), 0 0 36px rgba(37, 137, 255, 0.25);
+        --glow-shadow-featured-hover: 0 0 22px rgba(0, 235, 255, 0.48), 0 0 44px rgba(37, 137, 255, 0.35);
+        --glow-btn-shadow: 0 0 14px rgba(37, 137, 255, 0.42), 0 0 28px rgba(108, 59, 255, 0.32);
+        --glow-radius: 24px;
       }
 
       /* Hide scrollbar for Chrome, Safari and Opera */
@@ -138,6 +174,81 @@
         border: 1px solid var(--border-color);
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
+      }
+
+      /* Reusable Glowing Border System Classes */
+      .glow-card {
+        border: 1px solid var(--glow-border);
+        box-shadow: var(--glow-shadow);
+        transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+      }
+      .glow-card:hover {
+        border-color: var(--glow-border-hover);
+        box-shadow: var(--glow-shadow-hover);
+        transform: translateY(-2px);
+      }
+
+      .glow-panel {
+        border: 1px solid var(--glow-border-subtle);
+        box-shadow: var(--glow-shadow-subtle);
+        transition: border-color 200ms ease, box-shadow 200ms ease;
+      }
+
+      .glow-featured {
+        border: 1.5px solid var(--glow-border-featured);
+        box-shadow: var(--glow-shadow-featured);
+        transition: border-color 260ms ease, box-shadow 260ms ease, transform 260ms ease;
+      }
+      .glow-featured:hover {
+        box-shadow: var(--glow-shadow-featured-hover);
+      }
+
+      .glow-subtle {
+        border: 1px solid var(--glow-border-subtle);
+        box-shadow: var(--glow-shadow-subtle);
+        transition: border-color 180ms ease, box-shadow 180ms ease;
+      }
+      .glow-subtle:focus-within,
+      .glow-subtle:focus {
+        border-color: var(--glow-border);
+        box-shadow: var(--glow-shadow);
+      }
+
+      .glow-interactive {
+        transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+      }
+      .glow-interactive:hover {
+        border-color: var(--glow-border-hover);
+        box-shadow: var(--glow-shadow-hover);
+      }
+      .glow-interactive:active {
+        transform: scale(0.97);
+      }
+
+      .glow-btn-primary {
+        background: var(--gradient-primary);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: var(--glow-btn-shadow);
+        transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+      }
+      .glow-btn-primary:hover:not(:disabled) {
+        filter: brightness(1.12);
+        box-shadow: 0 0 16px rgba(0, 217, 255, 0.45), 0 0 32px rgba(37, 137, 255, 0.35);
+      }
+      .glow-btn-primary:active:not(:disabled) {
+        transform: scale(0.97);
+      }
+      .glow-btn-primary:disabled {
+        opacity: 0.5;
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .glow-card, .glow-panel, .glow-featured, .glow-subtle, .glow-interactive, .glow-btn-primary {
+          transition: none !important;
+          transform: none !important;
+        }
       }
     </style>
 <script type="importmap">

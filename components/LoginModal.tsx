@@ -60,16 +60,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
       <div 
-        className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-100 dark:border-slate-800 flex flex-col transition-colors"
+        className="glow-card w-full max-w-md rounded-[24px] shadow-2xl overflow-hidden flex flex-col transition-colors"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white p-5 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#6C3BFF] via-[#4F46E5] to-[#2589FF] text-white p-5 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
+            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
@@ -82,9 +82,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white/15 hover:bg-white/25 text-white transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -101,38 +101,37 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     className="w-20 h-20 rounded-full object-cover shadow-md border-2 border-blue-500"
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl font-bold shadow-inner border border-blue-200 dark:border-blue-800">
+                  <div className="w-20 h-20 rounded-full bg-blue-500/15 text-[#2589FF] dark:text-cyan-400 flex items-center justify-center text-2xl font-bold shadow-inner border border-blue-400/30">
                     {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U'}
                   </div>
                 )}
-                
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-bold text-[#102A56] dark:text-[#F5F7FF]">
                   {currentUser.displayName || 'Smart Deal Member'}
                 </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                <p className="text-xs text-[#526B98] dark:text-[#8294B8] mt-0.5">
                   {currentUser.email || currentUser.uid}
                 </p>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold mt-2.5">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-semibold border border-emerald-500/30 mt-2.5">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Google Authentication Active</span>
                 </div>
               </div>
 
-              <div className="border-t border-gray-100 dark:border-slate-800 pt-4 flex gap-3">
+              <div className="border-t border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.22)] pt-4 flex gap-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
+                  className="flex-1 py-2.5 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] hover:opacity-95 text-white text-xs font-bold rounded-full shadow-lg shadow-blue-500/25 transition-all active:scale-95 cursor-pointer"
                 >
                   Continue Shopping
                 </button>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="px-4 py-2.5 bg-gray-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2.5 bg-white/70 dark:bg-[#071329]/70 hover:bg-red-500/10 text-red-500 text-xs font-bold rounded-full border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Sign Out</span>
@@ -145,22 +144,22 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               
               {/* Status / Error feedback */}
               {errorMessage && (
-                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs font-medium">
+                <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-medium">
                   {errorMessage}
                 </div>
               )}
 
               {successMessage && (
-                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs font-medium">
+                <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-medium">
                   {successMessage}
                 </div>
               )}
 
               <div className="text-center space-y-2 py-2">
-                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                <h3 className="text-base font-bold text-[#102A56] dark:text-[#F5F7FF]">
                   Welcome to Smart Deal Online
                 </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
+                <p className="text-xs text-[#526B98] dark:text-[#8294B8] max-w-xs mx-auto">
                   Sign in securely with your Google account to sync your cart, wishlist, and orders across all your devices.
                 </p>
               </div>
@@ -170,11 +169,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full py-3.5 px-4 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-100 font-bold text-sm rounded-xl shadow-md border border-gray-200 dark:border-slate-700 transition-all active:scale-95 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
+                className="w-full py-3.5 px-4 bg-white/90 dark:bg-[#071329]/80 hover:bg-white dark:hover:bg-[#0B1935] text-[#102A56] dark:text-[#F5F7FF] font-bold text-sm rounded-full shadow-md border border-[rgba(92,137,220,0.25)] dark:border-[rgba(100,160,255,0.3)] transition-all active:scale-95 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-[#2589FF] border-t-transparent rounded-full animate-spin"></div>
                     <span>Connecting to Google...</span>
                   </>
                 ) : (
@@ -204,7 +203,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               </button>
 
               <div className="pt-2 text-center">
-                <p className="text-[11px] text-gray-400">
+                <p className="text-[11px] text-[#7889A8] dark:text-[#8294B8]">
                   By signing in, you agree to Smart Deal's Terms of Service and Privacy Policy.
                 </p>
               </div>
@@ -214,7 +213,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-gray-50 dark:bg-slate-800/80 border-t border-gray-100 dark:border-slate-800 text-center text-[11px] text-gray-400">
+        <div className="p-3 bg-white/40 dark:bg-[#071329]/40 border-t border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.22)] text-center text-[11px] text-[#7889A8] dark:text-[#8294B8]">
           Smart Deal Online • Secure Google Authentication
         </div>
       </div>

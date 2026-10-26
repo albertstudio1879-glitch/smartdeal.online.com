@@ -329,15 +329,15 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] overflow-hidden bg-white dark:bg-slate-950 flex flex-col animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] overflow-hidden bg-[#F7F9FF] dark:bg-[#071329] text-[#102A56] dark:text-[#F5F7FF] flex flex-col animate-in fade-in duration-200">
       
       {/* Top Header Bar */}
-      <div className="bg-blue-600 text-white px-4 py-4 flex items-center justify-between shadow-md">
+      <div className="bg-gradient-to-r from-[#6C3BFF] via-[#4F46E5] to-[#2589FF] text-white px-4 py-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/20 transition-colors text-white cursor-pointer"
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-white/15 hover:bg-white/25 transition-colors text-white cursor-pointer"
             title="Back to My Accounts"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -349,7 +349,7 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
           <button
             type="button"
             onClick={handleOpenAdd}
-            className="bg-white text-blue-600 hover:bg-blue-50 text-xs font-bold px-3.5 py-2 rounded-xl transition-transform active:scale-95 shadow-xs flex items-center gap-1.5 cursor-pointer"
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 text-xs font-bold px-4 py-2 rounded-full transition-transform active:scale-95 shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add New</span>
@@ -361,28 +361,28 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
       <div className="flex-1 overflow-y-auto p-4 md:p-6 max-w-2xl mx-auto w-full space-y-6">
         
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-[#526B98] dark:text-[#8294B8]">
             Manage your delivery addresses for seamless checkout across all your devices.
           </p>
         </div>
 
         {actionMsg && (
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl text-center flex items-center justify-center gap-2">
+          <div className="p-3 bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold rounded-xl text-center flex items-center justify-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
             <span>{actionMsg}</span>
           </div>
         )}
 
         {errorMsg && (
-          <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 text-red-700 text-xs font-semibold rounded-xl text-center flex items-center justify-center gap-2">
+          <div className="p-3 bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-semibold rounded-xl text-center flex items-center justify-center gap-2">
             <AlertCircle className="w-4 h-4" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {!currentUser ? (
-          <div className="p-12 text-center space-y-4 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          <div className="p-12 text-center space-y-4 bg-white/80 dark:bg-[#102448]/80 backdrop-blur-xl rounded-[24px] border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] shadow-sm">
+            <p className="text-sm font-semibold text-[#102A56] dark:text-[#F5F7FF]">
               Please sign in to view and manage your saved addresses.
             </p>
             <button
@@ -391,29 +391,29 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                 onClose();
                 onOpenLogin();
               }}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-transform active:scale-95 cursor-pointer uppercase tracking-wider"
+              className="px-6 py-2.5 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] hover:opacity-95 text-white font-bold text-xs rounded-full shadow-lg shadow-blue-500/25 transition-transform active:scale-95 cursor-pointer uppercase tracking-wider"
             >
               Sign in with Google
             </button>
           </div>
         ) : isLoading && addresses.length === 0 ? (
           <div className="p-16 text-center space-y-3">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-xs font-semibold text-gray-500">Loading saved addresses...</p>
+            <div className="w-8 h-8 border-4 border-[#2589FF] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-xs font-semibold text-[#526B98] dark:text-[#8294B8]">Loading saved addresses...</p>
           </div>
         ) : addresses.length === 0 ? (
-          <div className="p-12 text-center space-y-4 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
-            <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 flex items-center justify-center mx-auto">
-              <MapPin className="w-6 h-6" />
+          <div className="p-12 text-center space-y-4 bg-white/80 dark:bg-[#102448]/80 backdrop-blur-xl rounded-[24px] border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] shadow-sm">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-[#6C3BFF]/15 to-[#2589FF]/20 text-[#2589FF] dark:text-cyan-400 flex items-center justify-center mx-auto border border-blue-400/30">
+              <MapPin className="w-7 h-7" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-gray-900 dark:text-white">No Saved Addresses</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Add a delivery address for quick checkout.</p>
+              <h3 className="text-sm font-bold text-[#102A56] dark:text-[#F5F7FF]">No Saved Addresses</h3>
+              <p className="text-xs text-[#526B98] dark:text-[#8294B8] mt-1">Add a delivery address for quick checkout.</p>
             </div>
             <button
               type="button"
               onClick={handleOpenAdd}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-transform active:scale-95 cursor-pointer uppercase tracking-wider inline-flex items-center gap-2"
+              className="px-6 py-2.5 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] hover:opacity-95 text-white font-bold text-xs rounded-full shadow-lg shadow-blue-500/25 transition-transform active:scale-95 cursor-pointer uppercase tracking-wider inline-flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               <span>Add New Address</span>
@@ -426,34 +426,34 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
               return (
                 <div 
                   key={addr.id} 
-                  className={`p-4 rounded-2xl border transition-all space-y-3 relative ${
+                  className={`p-5 rounded-[22px] transition-all space-y-3 relative ${
                     addr.isDefault 
-                      ? 'bg-blue-50/40 dark:bg-blue-950/20 border-blue-300 dark:border-blue-700 shadow-sm' 
-                      : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 shadow-xs'
+                      ? 'glow-card border-cyan-400 dark:border-cyan-400' 
+                      : 'glow-card'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#6C3BFF]/15 to-[#2589FF]/20 text-[#6C3BFF] dark:text-cyan-400 flex items-center justify-center border border-blue-400/30">
                         <IconComponent className="w-4 h-4" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-700 dark:text-cyan-300">
                             {addr.addressType || 'Home'}
                           </span>
                           {addr.isDefault && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 uppercase">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 uppercase">
                               Default
                             </span>
                           )}
                           {addr.locationSource && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 uppercase">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/70 dark:bg-[#071329]/70 text-[#526B98] dark:text-[#8294B8] border border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.2)] uppercase">
                               {addr.locationSource === 'gps' ? 'GPS' : addr.locationSource === 'google_map' ? 'Map Pin' : 'Manual'}
                             </span>
                           )}
                         </div>
-                        <h3 className="text-sm font-bold text-gray-900 dark:text-white mt-1">
+                        <h3 className="text-sm font-bold text-[#102A56] dark:text-[#F5F7FF] mt-1">
                           {addr.fullName}
                         </h3>
                       </div>
@@ -463,7 +463,7 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleOpenEdit(addr)}
-                        className="p-2 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+                        className="p-2 text-[#526B98] hover:text-[#2589FF] dark:text-[#8294B8] dark:hover:text-cyan-400 transition-colors cursor-pointer"
                         title="Edit Address"
                       >
                         <Edit3 className="w-4 h-4" />
@@ -471,7 +471,7 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setConfirmDeleteId(addr.id)}
-                        className="p-2 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
+                        className="p-2 text-[#526B98] hover:text-red-500 dark:text-[#8294B8] dark:hover:text-red-400 transition-colors cursor-pointer"
                         title="Delete Address"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -479,24 +479,24 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="text-xs text-gray-600 dark:text-gray-300 space-y-1 pl-1">
-                    <p className="font-medium text-gray-800 dark:text-gray-200">
+                  <div className="text-xs text-[#526B98] dark:text-[#B8C7E8] space-y-1 pl-1">
+                    <p className="font-semibold text-[#102A56] dark:text-[#F5F7FF]">
                       {addr.houseName}{addr.houseNumber ? `, #${addr.houseNumber}` : ''}
                     </p>
                     <p>{addr.street}{addr.landmark ? `, Near ${addr.landmark}` : ''}</p>
-                    <p>{addr.city}, {addr.district}, {addr.state} - <span className="font-bold">{addr.pinCode}</span></p>
-                    <p className="text-gray-500 flex items-center gap-1 pt-0.5">
+                    <p>{addr.city}, {addr.district}, {addr.state} - <span className="font-bold text-[#102A56] dark:text-[#F5F7FF]">{addr.pinCode}</span></p>
+                    <p className="text-[#526B98] dark:text-[#8294B8] flex items-center gap-1 pt-0.5">
                       <Phone className="w-3.5 h-3.5" />
                       <span>{addr.phoneNumber}</span>
                     </p>
                   </div>
 
                   {!addr.isDefault && (
-                    <div className="pt-2 border-t border-gray-100 dark:border-slate-800 flex justify-end">
+                    <div className="pt-2 border-t border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.22)] flex justify-end">
                       <button
                         type="button"
                         onClick={() => handleSetDefault(addr.id)}
-                        className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                        className="text-xs font-bold text-[#2589FF] dark:text-cyan-400 hover:underline cursor-pointer"
                       >
                         Set as Default Address
                       </button>
@@ -504,13 +504,13 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                   )}
 
                   {confirmDeleteId === addr.id && (
-                    <div className="p-3 bg-red-50 dark:bg-red-950/60 rounded-xl border border-red-200 dark:border-red-800 flex items-center justify-between animate-in fade-in duration-150">
-                      <p className="text-xs text-red-700 dark:text-red-300 font-medium">Delete this saved address?</p>
+                    <div className="p-3 bg-red-500/15 rounded-xl border border-red-500/30 flex items-center justify-between animate-in fade-in duration-150">
+                      <p className="text-xs text-red-600 dark:text-red-400 font-medium">Delete this saved address?</p>
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() => setConfirmDeleteId(null)}
-                          className="px-3 py-1 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 text-xs font-bold rounded-lg border border-gray-300 dark:border-slate-700 cursor-pointer"
+                          className="px-3 py-1 bg-white/80 dark:bg-slate-800 text-[#526B98] dark:text-[#B8C7E8] text-xs font-bold rounded-lg border border-gray-300 dark:border-slate-700 cursor-pointer"
                         >
                           Cancel
                         </button>
@@ -534,17 +534,17 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
       {/* Add / Edit Address Modal Form */}
       {showFormModal && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-gray-100 dark:border-slate-800 flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#F7F9FF] dark:bg-[#102448] w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-[rgba(92,137,220,0.25)] dark:border-[rgba(100,160,255,0.28)] flex flex-col max-h-[90vh]">
             
-            <div className="bg-blue-600 text-white px-6 py-4 flex items-center justify-between">
-              <h2 className="text-base font-bold">
+            <div className="bg-gradient-to-r from-[#6C3BFF] via-[#4F46E5] to-[#2589FF] text-white px-6 py-4 flex items-center justify-between shadow-md">
+              <h2 className="text-base font-bold tracking-tight">
                 {editingAddressId ? 'Edit Delivery Address' : 'Add New Delivery Address'}
               </h2>
               <button
                 type="button"
                 onClick={() => setShowFormModal(false)}
-                className="p-1 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -558,12 +558,12 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                   type="button"
                   onClick={handleUseCurrentLocation}
                   disabled={isLocating}
-                  className="py-2.5 px-3 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 text-blue-700 dark:text-blue-300 font-bold text-[11px] rounded-xl shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
+                  className="py-2.5 px-3 bg-white/80 dark:bg-[#071329]/60 border border-[rgba(92,137,220,0.25)] dark:border-[rgba(100,160,255,0.28)] hover:border-blue-400 text-blue-600 dark:text-cyan-300 font-bold text-[11px] rounded-2xl shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
                 >
                   {isLocating ? (
                     <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <MapPin className="w-4 h-4 text-blue-600" />
+                    <MapPin className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
                   )}
                   <span>{isLocating ? 'Locating...' : '📍 Use Current Location'}</span>
                 </button>
@@ -571,7 +571,7 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowGoogleMapModal(true)}
-                  className="py-2.5 px-3 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 font-bold text-[11px] rounded-xl shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
+                  className="py-2.5 px-3 bg-white/80 dark:bg-[#071329]/60 border border-[rgba(92,137,220,0.25)] dark:border-[rgba(100,160,255,0.28)] hover:border-indigo-400 text-indigo-600 dark:text-indigo-300 font-bold text-[11px] rounded-2xl shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
                 >
                   <span className="text-base">🗺️</span>
                   <span>Select on Google Map</span>
@@ -583,7 +583,7 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
               )}
 
               {formError && (
-                <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 text-red-700 text-xs font-semibold rounded-xl flex items-center justify-between gap-2">
+                <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-semibold rounded-2xl flex items-center justify-between gap-2">
                   <span>{formError}</span>
                   {formError.includes("detect your location in time") && (
                     <button
@@ -599,28 +599,28 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <input 
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-600"
+                    className="w-full px-3.5 py-2.5 bg-white/90 dark:bg-[#071329]/70 border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] rounded-xl text-sm text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none focus:ring-2 focus:ring-blue-400/40"
                     placeholder="Receiver's full name"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                     Phone Number <span className="text-red-500">*</span>
                   </label>
                   <input 
                     type="tel"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-600"
+                    className="w-full px-3.5 py-2.5 bg-white/90 dark:bg-[#071329]/70 border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] rounded-xl text-sm text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none focus:ring-2 focus:ring-blue-400/40"
                     placeholder="10-digit mobile number"
                     required
                   />
@@ -629,98 +629,98 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                     House Name <span className="text-red-500">*</span>
                   </label>
                   <input 
                     type="text"
                     value={houseName}
                     onChange={(e) => setHouseName(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-600"
+                    className="w-full px-3.5 py-2.5 bg-white/90 dark:bg-[#071329]/70 border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] rounded-xl text-sm text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none focus:ring-2 focus:ring-blue-400/40"
                     placeholder="House / Apartment name"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                     House / Building Number (Optional)
                   </label>
                   <input 
                     type="text"
                     value={houseNumber}
                     onChange={(e) => setHouseNumber(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-600"
+                    className="w-full px-3.5 py-2.5 bg-white/90 dark:bg-[#071329]/70 border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] rounded-xl text-sm text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none focus:ring-2 focus:ring-blue-400/40"
                     placeholder="e.g. Flat #4B"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                   Street / Locality <span className="text-red-500">*</span>
                 </label>
                 <input 
                   type="text"
                   value={street}
                   onChange={(e) => setStreet(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-600"
+                  className="w-full px-3.5 py-2.5 bg-white/90 dark:bg-[#071329]/70 border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] rounded-xl text-sm text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none focus:ring-2 focus:ring-blue-400/40"
                   placeholder="Street name, Area, Sector"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                   Landmark (Optional)
                 </label>
                 <input 
                   type="text"
                   value={landmark}
                   onChange={(e) => setLandmark(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-600"
+                  className="w-full px-3.5 py-2.5 bg-white/90 dark:bg-[#071329]/70 border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] rounded-xl text-sm text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none focus:ring-2 focus:ring-blue-400/40"
                   placeholder="e.g. Near City Mall"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                     City / Town <span className="text-red-500">*</span>
                   </label>
                   <input 
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-600"
+                    className="w-full px-3.5 py-2.5 bg-white/90 dark:bg-[#071329]/70 border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] rounded-xl text-sm text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none focus:ring-2 focus:ring-blue-400/40"
                     placeholder="City"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                     District <span className="text-red-500">*</span>
                   </label>
                   <input 
                     type="text"
                     value={district}
                     onChange={(e) => setDistrict(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-600"
+                    className="w-full px-3.5 py-2.5 bg-white/90 dark:bg-[#071329]/70 border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] rounded-xl text-sm text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none focus:ring-2 focus:ring-blue-400/40"
                     placeholder="District"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                     State <span className="text-red-500">*</span>
                   </label>
                   <input 
                     type="text"
                     value={stateName}
                     onChange={(e) => setStateName(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-600"
+                    className="w-full px-3.5 py-2.5 bg-white/90 dark:bg-[#071329]/70 border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] rounded-xl text-sm text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none focus:ring-2 focus:ring-blue-400/40"
                     placeholder="State"
                     required
                   />
@@ -729,14 +729,14 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                     PIN Code <span className="text-red-500">*</span>
                   </label>
                   <input 
                     type="text"
                     value={pinCode}
                     onChange={(e) => setPinCode(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-600"
+                    className="w-full px-3.5 py-2.5 bg-white/90 dark:bg-[#071329]/70 border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] rounded-xl text-sm text-[#102A56] dark:text-[#F5F7FF] placeholder-[#7889A8] dark:placeholder-[#8294B8] focus:outline-none focus:ring-2 focus:ring-blue-400/40"
                     placeholder="6-digit PIN code"
                     maxLength={6}
                     required
@@ -744,7 +744,7 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-xs font-medium text-[#526B98] dark:text-[#B8C7E8] mb-1">
                     Address Type <span className="text-red-500">*</span>
                   </label>
                   <div className="flex gap-2">
@@ -755,8 +755,8 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                         onClick={() => setAddressType(type)}
                         className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
                           addressType === type
-                            ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
-                            : 'bg-gray-50 dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-700 dark:text-gray-300'
+                            ? 'bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] border-transparent text-white shadow-xs'
+                            : 'bg-white/70 dark:bg-[#071329]/60 border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] text-[#102A56] dark:text-[#F5F7FF]'
                         }`}
                       >
                         {type}
@@ -772,9 +772,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                     type="checkbox"
                     checked={isDefault}
                     onChange={(e) => setIsDefault(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
                   />
-                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Set as default delivery address (Optional)</span>
+                  <span className="text-xs font-semibold text-[#102A56] dark:text-[#F5F7FF]">Set as default delivery address (Optional)</span>
                 </label>
               </div>
 
@@ -782,14 +782,14 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowFormModal(false)}
-                  className="flex-1 py-2.5 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-gray-700 dark:text-gray-300 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                  className="flex-1 py-3 bg-white/70 dark:bg-[#071329]/70 hover:bg-white dark:hover:bg-[#071329] border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] text-[#526B98] dark:text-[#B8C7E8] font-bold text-xs rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-xs rounded-xl shadow-md transition-transform active:scale-95 cursor-pointer uppercase tracking-wider flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] hover:brightness-110 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-lg transition-transform active:scale-95 cursor-pointer uppercase tracking-wider flex items-center justify-center gap-2 border border-white/20"
                 >
                   {isSaving && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
                   <span>{isSaving ? 'Saving...' : 'Save Address'}</span>

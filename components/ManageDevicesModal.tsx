@@ -93,15 +93,15 @@ export const ManageDevicesModal: React.FC<ManageDevicesModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] overflow-hidden bg-white dark:bg-slate-950 flex flex-col animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] overflow-hidden bg-[#F7F9FF] dark:bg-[#071329] flex flex-col animate-in fade-in duration-200 transition-colors">
       
       {/* Top Header Bar */}
-      <div className="bg-blue-600 text-white px-4 py-4 flex items-center justify-between shadow-md">
+      <div className="bg-gradient-to-r from-[#6C3BFF] via-[#4F46E5] to-[#2589FF] text-white px-4 py-4 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/20 transition-colors text-white cursor-pointer"
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/30 transition-colors text-white cursor-pointer"
             title="Back to My Accounts"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -112,7 +112,7 @@ export const ManageDevicesModal: React.FC<ManageDevicesModalProps> = ({
         <button
           type="button"
           onClick={loadDevices}
-          className="p-1.5 rounded-full hover:bg-white/20 transition-colors text-white cursor-pointer"
+          className="w-9 h-9 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/30 transition-colors text-white cursor-pointer"
           title="Refresh Devices"
         >
           <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -124,28 +124,28 @@ export const ManageDevicesModal: React.FC<ManageDevicesModalProps> = ({
         
         {/* Subtitle description */}
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-[#526B98] dark:text-[#8294B8]">
             View and manage devices used to access your Smart Deal account. Deleting a device record removes its tracking entry; to fully revoke access, ensure you log out of that device.
           </p>
         </div>
 
         {actionMsg && (
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl text-center flex items-center justify-center gap-2">
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-semibold rounded-2xl text-center flex items-center justify-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
             <span>{actionMsg}</span>
           </div>
         )}
 
         {errorMsg && (
-          <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 text-red-700 text-xs font-semibold rounded-xl text-center flex items-center justify-center gap-2">
+          <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-semibold rounded-2xl text-center flex items-center justify-center gap-2">
             <AlertCircle className="w-4 h-4" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {!currentUser ? (
-          <div className="p-12 text-center space-y-4 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          <div className="p-12 text-center space-y-4 bg-white/80 dark:bg-[#102448]/80 backdrop-blur-xl rounded-3xl border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] shadow-[0_8px_24px_rgba(37,137,255,0.06)]">
+            <p className="text-sm font-semibold text-[#102A56] dark:text-[#F5F7FF]">
               Please sign in to view and manage your registered devices.
             </p>
             <button
@@ -154,7 +154,7 @@ export const ManageDevicesModal: React.FC<ManageDevicesModalProps> = ({
                 onClose();
                 onOpenLogin();
               }}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-transform active:scale-95 cursor-pointer uppercase tracking-wider"
+              className="px-6 py-3 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] hover:brightness-110 text-white font-bold text-xs rounded-full shadow-lg transition-transform active:scale-95 cursor-pointer uppercase tracking-wider border border-white/20"
             >
               Sign in with Google
             </button>
@@ -162,38 +162,38 @@ export const ManageDevicesModal: React.FC<ManageDevicesModalProps> = ({
         ) : isLoading && devices.length === 0 ? (
           <div className="p-16 text-center space-y-3">
             <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-xs font-semibold text-gray-500">Loading registered devices...</p>
+            <p className="text-xs font-semibold text-[#7889A8] dark:text-[#8294B8]">Loading registered devices...</p>
           </div>
         ) : (
           <>
             {/* Current Device Section */}
             <div className="space-y-3">
-              <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">This device</h2>
+              <h2 className="text-xs font-bold text-[#102A56] dark:text-[#F5F7FF] uppercase tracking-wider">This device</h2>
               
               {currentDevice ? (
-                <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-blue-200 dark:border-blue-800 shadow-sm space-y-3 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                <div className="p-4 glow-card rounded-3xl space-y-3 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[10px] font-bold px-3 py-1 rounded-bl-2xl uppercase tracking-wider shadow-xs">
                     Current Device
                   </div>
 
                   <div className="flex items-start gap-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0 border border-blue-100 dark:border-blue-900">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-r from-[#6C3BFF]/15 to-[#2589FF]/20 text-blue-600 dark:text-cyan-400 flex items-center justify-center flex-shrink-0 border border-blue-400/25">
                       <Smartphone className="w-5 h-5" />
                     </div>
                     <div className="flex-1 min-w-0 pr-16">
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                      <h3 className="text-sm font-bold text-[#102A56] dark:text-[#F5F7FF] truncate">
                         {currentDevice.deviceName}
                       </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        Browser: <span className="font-semibold text-gray-700 dark:text-gray-300">{currentDevice.browser}</span> on <span className="font-semibold text-gray-700 dark:text-gray-300">{currentDevice.os}</span>
+                      <p className="text-xs text-[#526B98] dark:text-[#B8C7E8] mt-0.5">
+                        Browser: <span className="font-semibold text-[#102A56] dark:text-[#F5F7FF]">{currentDevice.browser}</span> on <span className="font-semibold text-[#102A56] dark:text-[#F5F7FF]">{currentDevice.os}</span>
                       </p>
-                      <p className="text-[11px] text-gray-400 mt-1">
+                      <p className="text-[11px] text-[#7889A8] dark:text-[#8294B8] mt-1">
                         Last used on {formatDate(currentDevice.lastActiveAt)} • {currentDevice.location || 'Online Session'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between text-xs text-gray-500">
+                  <div className="pt-2.5 border-t border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.2)] flex items-center justify-between text-xs text-[#526B98] dark:text-[#8294B8]">
                     <span>Registered on {formatDate(currentDevice.registeredAt)}</span>
                     <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5" />
@@ -202,7 +202,7 @@ export const ManageDevicesModal: React.FC<ManageDevicesModalProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="p-4 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 text-center text-xs text-gray-500">
+                <div className="p-4 bg-white/70 dark:bg-[#102448]/70 backdrop-blur-md rounded-2xl border border-[rgba(92,137,220,0.2)] text-center text-xs text-[#7889A8] dark:text-[#8294B8]">
                   Current device registering...
                 </div>
               )}
@@ -210,42 +210,42 @@ export const ManageDevicesModal: React.FC<ManageDevicesModalProps> = ({
 
             {/* Other Devices Section */}
             <div className="space-y-3 pt-2">
-              <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Other devices</h2>
+              <h2 className="text-xs font-bold text-[#102A56] dark:text-[#F5F7FF] uppercase tracking-wider">Other devices</h2>
 
               {otherDevices.length === 0 ? (
-                <div className="p-6 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 text-center text-xs text-gray-500">
+                <div className="p-6 bg-white/80 dark:bg-[#102448]/80 backdrop-blur-xl rounded-2xl border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] text-center text-xs text-[#7889A8] dark:text-[#8294B8]">
                   No other devices currently registered for this account.
                 </div>
               ) : (
                 <div className="space-y-3">
                   {otherDevices.map(dev => (
-                    <div key={dev.id} className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm space-y-3">
+                    <div key={dev.id} className="p-4 glow-card rounded-2xl space-y-3">
                       <div className="flex items-start gap-3.5">
-                        <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-white/80 dark:bg-[#071329]/60 text-[#526B98] dark:text-cyan-400 flex items-center justify-center flex-shrink-0 border border-[rgba(92,137,220,0.2)]">
                           <Laptop className="w-5 h-5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                          <h3 className="text-sm font-bold text-[#102A56] dark:text-[#F5F7FF] truncate">
                             {dev.deviceName}
                           </h3>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                            Browser: <span className="font-semibold text-gray-700 dark:text-gray-300">{dev.browser}</span> on <span className="font-semibold text-gray-700 dark:text-gray-300">{dev.os}</span>
+                          <p className="text-xs text-[#526B98] dark:text-[#B8C7E8] mt-0.5">
+                            Browser: <span className="font-semibold text-[#102A56] dark:text-[#F5F7FF]">{dev.browser}</span> on <span className="font-semibold text-[#102A56] dark:text-[#F5F7FF]">{dev.os}</span>
                           </p>
-                          <p className="text-[11px] text-gray-400 mt-1">
+                          <p className="text-[11px] text-[#7889A8] dark:text-[#8294B8] mt-1">
                             Last used on {formatDate(dev.lastActiveAt)} • {dev.location || 'Online Session'}
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => setConfirmDeleteId(dev.id)}
-                          className="px-3 py-1.5 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-600 dark:text-red-400 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1 flex-shrink-0"
+                          className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold rounded-xl transition-colors cursor-pointer flex items-center gap-1 flex-shrink-0 border border-red-500/20"
                         >
                           <LogOut className="w-3.5 h-3.5" />
                           <span>Remove</span>
                         </button>
                       </div>
 
-                      <div className="pt-2 border-t border-gray-100 dark:border-slate-800 text-xs text-gray-400 flex items-center justify-between">
+                      <div className="pt-2 border-t border-[rgba(92,137,220,0.18)] dark:border-[rgba(100,160,255,0.2)] text-xs text-[#7889A8] dark:text-[#8294B8] flex items-center justify-between">
                         <span>Registered on {formatDate(dev.registeredAt)}</span>
                       </div>
 
@@ -256,7 +256,7 @@ export const ManageDevicesModal: React.FC<ManageDevicesModalProps> = ({
                             <button
                               type="button"
                               onClick={() => setConfirmDeleteId(null)}
-                              className="px-3 py-1 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 text-xs font-bold rounded-lg border border-gray-300 dark:border-slate-700 cursor-pointer"
+                              className="px-3 py-1 bg-white dark:bg-[#102448] text-[#102A56] dark:text-[#F5F7FF] text-xs font-bold rounded-lg border border-[rgba(92,137,220,0.22)] dark:border-[rgba(100,160,255,0.28)] cursor-pointer"
                             >
                               Cancel
                             </button>
@@ -282,7 +282,7 @@ export const ManageDevicesModal: React.FC<ManageDevicesModalProps> = ({
                 <button
                   type="button"
                   onClick={handleLogOutAll}
-                  className="w-full py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 text-red-600 dark:text-red-400 font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer uppercase tracking-wider"
+                  className="w-full py-3 bg-white/80 dark:bg-[#102448]/80 border border-red-300/40 dark:border-red-800/40 hover:bg-red-50/50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer uppercase tracking-wider"
                 >
                   Log out from all other devices
                 </button>
