@@ -2,24 +2,32 @@
   "entities": {
     "UserProfile": {
       "title": "UserProfile",
-      "description": "User account created and maintained via passwordless OTP verification",
+      "description": "User account profile containing first name, last name, phone number, email, and metadata",
       "type": "object",
       "properties": {
         "id": {
           "type": "string",
           "description": "Unique user ID matching Firebase Auth UID"
         },
+        "firstName": {
+          "type": "string",
+          "description": "User first name"
+        },
+        "lastName": {
+          "type": "string",
+          "description": "User last name"
+        },
         "phoneNumber": {
           "type": "string",
-          "description": "User mobile phone number with country code"
+          "description": "User mobile phone number"
         },
         "email": {
           "type": "string",
-          "description": "User email address if authenticated via email"
+          "description": "User email address"
         },
         "displayName": {
           "type": "string",
-          "description": "User display name or formatted identifier"
+          "description": "User display name"
         },
         "avatar": {
           "type": "string",
@@ -37,6 +45,10 @@
         "updatedAt": {
           "type": "number",
           "description": "Epoch timestamp in ms when user profile was last updated"
+        },
+        "lastLoginAt": {
+          "type": "number",
+          "description": "Epoch timestamp in ms of last login"
         }
       },
       "required": ["id", "role", "createdAt"]
@@ -86,7 +98,7 @@
   "firestore": {
     "/users/{userId}": {
       "schema": "UserProfile",
-      "description": "User profile collection containing account details and role"
+      "description": "User profile document containing account and contact details"
     },
     "/otp_verifications/{otpId}": {
       "schema": "OtpRecord",

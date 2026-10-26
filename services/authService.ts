@@ -21,6 +21,9 @@ export interface UserAccount {
   role: 'customer' | 'admin';
   createdAt: number;
   lastLoginAt: number;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
 }
 
 const LOCAL_USER_KEY = 'smart_deal_logged_in_user_v1';
@@ -31,7 +34,6 @@ const LOCAL_USER_KEY = 'smart_deal_logged_in_user_v1';
 export async function loginWithGoogle(): Promise<{ success: boolean; user?: UserAccount; message?: string }> {
   try {
     const provider = new GoogleAuthProvider();
-    // Optional: set custom parameters if needed
     provider.setCustomParameters({ prompt: 'select_account' });
 
     const result = await signInWithPopup(auth, provider);
@@ -64,6 +66,8 @@ async function syncUserProfile(fbUser: FirebaseUser): Promise<UserAccount> {
   const email = fbUser.email || null;
   const displayName = fbUser.displayName || email?.split('@')[0] || 'Smart Deal Member';
   const avatar = fbUser.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}`;
+  const defaultFirstName = displayName.split(' ')[0] || '';
+  const defaultLastName = displayName.split(' ').slice(1).join(' ') || '';
 
   let userProfile: UserAccount;
 
@@ -76,31 +80,35 @@ async function syncUserProfile(fbUser: FirebaseUser): Promise<UserAccount> {
       userProfile = {
         ...data,
         email: email || data.email || null,
-        displayName: displayName || data.displayName,
-        avatar: avatar || data.avatar,
+        displayName: data.displayName || displayName,
+        avatar: data.avatar || avatar,
+        firstName: data.firstName !== undefined ? data.firstName : defaultFirstName,
+        lastName: data.lastName !== undefined ? data.lastName : defaultLastName,
+        phoneNumber: data.phoneNumber || '',
         lastLoginAt: now
       };
       await updateDoc(userDocRef, {
         lastLoginAt: now,
         updatedAt: now,
-        email,
-        displayName,
-        avatar
+        email: email || data.email || null,
+        displayName: data.displayName || displayName,
+        avatar: data.avatar || avatar
       });
     } else {
       userProfile = {
+        id: uid,
         uid,
         email,
         displayName,
         avatar,
+        firstName: defaultFirstName,
+        lastName: defaultLastName,
+        phoneNumber: '',
         role: 'customer',
         createdAt: now,
         lastLoginAt: now
-      };
-      await setDoc(userDocRef, {
-        id: uid,
-        ...userProfile
-      });
+      } as any;
+      await setDoc(userDocRef, userProfile);
     }
   } catch (err) {
     console.error('Firestore user sync error:', err);
@@ -109,6 +117,9 @@ async function syncUserProfile(fbUser: FirebaseUser): Promise<UserAccount> {
       email,
       displayName,
       avatar,
+      firstName: defaultFirstName,
+      lastName: defaultLastName,
+      phoneNumber: '',
       role: 'customer',
       createdAt: now,
       lastLoginAt: now
@@ -201,6 +212,9 @@ export function initAuthListener(onUserChange: (user: UserAccount | null) => voi
           email: fbUser.email,
           displayName: fbUser.displayName || 'Smart Deal Member',
           avatar: fbUser.photoURL || '',
+          firstName: fbUser.displayName?.split(' ')[0] || '',
+          lastName: fbUser.displayName?.split(' ').slice(1).join(' ') || '',
+          phoneNumber: '',
           role: 'customer',
           createdAt: Date.now(),
           lastLoginAt: Date.now()
