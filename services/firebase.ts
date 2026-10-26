@@ -1,6 +1,11 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { 
+  initializeFirestore, 
+  getFirestore, 
+  doc, 
+  getDocFromServer 
+} from 'firebase/firestore';
 import config from '../firebase-applet-config.json';
 
 const firebaseConfig = {
@@ -16,10 +21,25 @@ const firebaseConfig = {
 export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-// Initialize Firestore with specific database ID if configured, else default
-export const db = config.firestoreDatabaseId 
-  ? getFirestore(app, config.firestoreDatabaseId)
-  : getFirestore(app);
+// Initialize Firestore with long-polling fallback to prevent 10s backend timeouts in iframes
+function createFirestoreInstance() {
+  try {
+    if (config.firestoreDatabaseId) {
+      return initializeFirestore(app, {
+        experimentalAutoDetectLongPolling: true,
+      }, config.firestoreDatabaseId);
+    }
+    return initializeFirestore(app, {
+      experimentalAutoDetectLongPolling: true,
+    });
+  } catch {
+    return config.firestoreDatabaseId 
+      ? getFirestore(app, config.firestoreDatabaseId)
+      : getFirestore(app);
+  }
+}
+
+export const db = createFirestoreInstance();
 
 export enum OperationType {
   CREATE = 'create',

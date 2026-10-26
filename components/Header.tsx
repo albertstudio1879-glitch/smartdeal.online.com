@@ -218,7 +218,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <Heart className="w-5 h-5 text-[#FF3388] fill-[#FF3388]" />
                   </span>
                   {wishlistCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 bg-gradient-to-r from-[#FF3377] to-[#FF5588] text-white text-[11px] font-black rounded-full flex items-center justify-center shadow-md animate-badge-bounce pointer-events-none select-none border border-white/20">
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 bg-gradient-to-r from-[#FF3377] to-[#FF5588] text-white text-[11px] font-black rounded-full flex items-center justify-center animate-wishlist-badge pointer-events-none select-none border border-white/20">
                       {wishlistCount > 99 ? '99+' : wishlistCount}
                     </span>
                   )}
@@ -231,11 +231,11 @@ export const Header: React.FC<HeaderProps> = ({
                   title="My Cart"
                   aria-label="My Cart"
                 >
-                  <span className="animate-cart-running inline-flex items-center justify-center pointer-events-none">
+                  <span className="animate-cart-rocking inline-flex items-center justify-center pointer-events-none">
                     <ShoppingCart className="w-5 h-5 text-[#102A56] dark:text-white stroke-[2.2px]" />
                   </span>
                   {cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[11px] font-black rounded-full flex items-center justify-center shadow-md animate-badge-bounce-offset pointer-events-none select-none border border-white/20">
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[11px] font-black rounded-full flex items-center justify-center animate-cart-badge pointer-events-none select-none border border-white/20">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
@@ -308,7 +308,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <Heart className="w-4 h-4 text-[#FF3388] fill-[#FF3388]" />
                   </span>
                   {wishlistCount > 0 && (
-                    <span className="absolute -top-2.5 -right-3 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#FF3377] to-[#FF5588] text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-xs animate-badge-bounce pointer-events-none select-none border border-white/20">
+                    <span className="absolute -top-2.5 -right-3 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#FF3377] to-[#FF5588] text-white text-[9px] font-black rounded-full flex items-center justify-center animate-wishlist-badge pointer-events-none select-none border border-white/20">
                       {wishlistCount > 99 ? '99+' : wishlistCount}
                     </span>
                   )}
@@ -323,11 +323,11 @@ export const Header: React.FC<HeaderProps> = ({
                 title="My Cart"
               >
                 <div className="relative flex items-center justify-center">
-                  <span className="animate-cart-running inline-flex items-center justify-center pointer-events-none">
+                  <span className="animate-cart-rocking inline-flex items-center justify-center pointer-events-none">
                     <ShoppingCart className="w-4 h-4 text-[#102A56] dark:text-white stroke-[2.2px]" />
                   </span>
                   {cartCount > 0 && (
-                    <span className="absolute -top-2.5 -right-3 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-xs animate-badge-bounce-offset pointer-events-none select-none border border-white/20">
+                    <span className="absolute -top-2.5 -right-3 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[9px] font-black rounded-full flex items-center justify-center animate-cart-badge pointer-events-none select-none border border-white/20">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}

@@ -111,8 +111,12 @@ export async function registerCurrentDevice(uid: string): Promise<void> {
       };
       await setDoc(deviceRef, newRecord);
     }
-  } catch (error) {
-    console.error('Failed to register current device:', error);
+  } catch (error: any) {
+    if (error?.code === 'unavailable' || error?.message?.includes('offline')) {
+      console.warn('Skipping device registration while offline.');
+    } else {
+      console.error('Failed to register current device:', error);
+    }
   }
 }
 
@@ -133,8 +137,12 @@ export async function fetchUserDevices(uid: string): Promise<DeviceRecord[]> {
         isCurrent: data.id === currentDevId
       };
     });
-  } catch (error) {
-    console.error('Failed to fetch devices:', error);
+  } catch (error: any) {
+    if (error?.code === 'unavailable' || error?.message?.includes('offline')) {
+      console.warn('Device list offline, returning empty or cached list.');
+    } else {
+      console.error('Failed to fetch devices:', error);
+    }
     return [];
   }
 }

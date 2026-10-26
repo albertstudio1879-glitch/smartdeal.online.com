@@ -101,15 +101,17 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 : 'text-[#526B98] dark:text-[#8294B8] hover:text-pink-500 dark:hover:text-pink-400'
             }`}>
               <div className="relative flex items-center justify-center">
-                <Heart 
-                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform group-active:scale-90 animate-wishlist-heart ${
-                    activeTab === 'wishlist' || wishlistCount > 0 
-                      ? 'stroke-[2.2px] text-[#FF3388] fill-[#FF3388]' 
-                      : 'stroke-[1.8px] text-[#FF3388]'
-                  }`} 
-                />
+                <span className="animate-wishlist-heart inline-flex items-center justify-center pointer-events-none">
+                  <Heart 
+                    className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform group-active:scale-90 ${
+                      activeTab === 'wishlist' || wishlistCount > 0 
+                        ? 'stroke-[2.2px] text-[#FF3388] fill-[#FF3388]' 
+                        : 'stroke-[1.8px] text-[#FF3388]'
+                    }`} 
+                  />
+                </span>
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#FF3377] to-[#FF5588] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs animate-badge-bounce pointer-events-none select-none border border-white/20">
+                  <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#FF3377] to-[#FF5588] text-white text-[10px] font-black rounded-full flex items-center justify-center animate-wishlist-badge pointer-events-none select-none border border-white/20">
                     {wishlistCount > 99 ? '99+' : wishlistCount}
                   </span>
                 )}
@@ -132,13 +134,15 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 : 'text-[#526B98] dark:text-[#8294B8] hover:text-[#102A56] dark:hover:text-[#F5F7FF]'
             }`}>
               <div className="relative flex items-center justify-center">
-                <ShoppingCart 
-                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform group-active:scale-90 animate-cart-running ${
-                    activeTab === 'cart' ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
-                  }`} 
-                />
+                <span className="animate-cart-rocking inline-flex items-center justify-center pointer-events-none">
+                  <ShoppingCart 
+                    className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform group-active:scale-90 ${
+                      activeTab === 'cart' ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                    }`} 
+                  />
+                </span>
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs animate-badge-bounce-offset pointer-events-none select-none border border-white/20">
+                  <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[10px] font-black rounded-full flex items-center justify-center animate-cart-badge pointer-events-none select-none border border-white/20">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}

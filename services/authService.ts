@@ -111,8 +111,12 @@ async function syncUserProfile(fbUser: FirebaseUser): Promise<UserAccount> {
       } as any;
       await setDoc(userDocRef, userProfile);
     }
-  } catch (err) {
-    console.error('Firestore user sync error:', err);
+  } catch (err: any) {
+    if (err?.code === 'unavailable' || err?.message?.includes('offline') || err?.message?.includes('Could not reach')) {
+      console.warn('Firestore offline during user sync, using local fallback session');
+    } else {
+      console.error('Firestore user sync error:', err);
+    }
     userProfile = {
       uid,
       email,
@@ -203,8 +207,12 @@ export function initAuthListener(onUserChange: (user: UserAccount | null) => voi
           onUserChange(profile);
           return;
         }
-      } catch (err) {
-        console.error('Auth state sync error:', err);
+      } catch (err: any) {
+        if (err?.code === 'unavailable' || err?.message?.includes('offline') || err?.message?.includes('Could not reach')) {
+          console.warn('Firestore is currently offline or unreachable. Using local user profile.');
+        } else {
+          console.error('Auth state sync error:', err);
+        }
       }
       const cached = getLocalUser();
       if (cached) {

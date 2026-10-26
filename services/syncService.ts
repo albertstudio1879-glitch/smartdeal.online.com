@@ -60,8 +60,12 @@ export function setupCloudSync(
     saveCartProductIds(ids, uid);
     saveCartQuantities(quantities, uid);
     onCartSync(ids, quantities);
-  }, (err) => {
-    console.error('Cart snapshot sync error:', err);
+  }, (err: any) => {
+    if (err?.code === 'unavailable' || err?.message?.includes('offline')) {
+      console.warn('Cart sync operating in offline mode.');
+    } else {
+      console.error('Cart snapshot sync error:', err);
+    }
   });
 
   // Real-time listener for Wishlist
@@ -80,8 +84,12 @@ export function setupCloudSync(
     entries.sort((a, b) => b.addedAt - a.addedAt);
     saveWishlistEntries(entries, uid);
     onWishlistSync(entries);
-  }, (err) => {
-    console.error('Wishlist snapshot sync error:', err);
+  }, (err: any) => {
+    if (err?.code === 'unavailable' || err?.message?.includes('offline')) {
+      console.warn('Wishlist sync operating in offline mode.');
+    } else {
+      console.error('Wishlist snapshot sync error:', err);
+    }
   });
 
   return () => {
