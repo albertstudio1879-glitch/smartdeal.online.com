@@ -135,13 +135,25 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     const unsubAuth = initAuthListener((u) => {
-      setCurrentUser(u);
+      setCurrentUser(prevUser => {
+        if (prevUser?.uid !== u?.uid) {
+          setCartProductIds([]);
+          setWishlistProductIds([]);
+          setWishlistEntries([]);
+        }
+        return u;
+      });
     });
     return () => unsubAuth();
   }, []);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      setCartProductIds(getCartProductIds(null));
+      setWishlistProductIds(getWishlistProductIds(null));
+      setWishlistEntries(getWishlistEntries(null));
+      return;
+    }
     const unsubSync = setupCloudSync(
       currentUser.uid,
       (ids, quantities) => {
@@ -195,11 +207,12 @@ const AppContent: React.FC = () => {
     const data = await getProducts();
     setProducts(data);
     setSiteSettings(getSiteSettings());
-    const cartIds = getCartProductIds();
+    const uid = currentUser?.uid || null;
+    const cartIds = getCartProductIds(uid);
     setCartProductIds(cartIds);
-    const wishlistIds = getWishlistProductIds();
+    const wishlistIds = getWishlistProductIds(uid);
     setWishlistProductIds(wishlistIds);
-    setWishlistEntries(getWishlistEntries());
+    setWishlistEntries(getWishlistEntries(uid));
     setIsLoading(false);
 
     // Deep Link Logic: Check URL for ?code=XYZ
@@ -279,7 +292,8 @@ const AppContent: React.FC = () => {
   };
 
   const handleToggleCart = (id: string) => {
-    const updated = toggleCartProduct(id, cartProductIds);
+    const uid = currentUser?.uid || null;
+    const updated = toggleCartProduct(id, cartProductIds, uid);
     setCartProductIds(updated);
     if (currentUser) {
       const isNowInCart = updated.includes(id);
@@ -292,27 +306,30 @@ const AppContent: React.FC = () => {
   };
 
   const handleRemoveFromCart = (id: string) => {
+    const uid = currentUser?.uid || null;
     const updated = cartProductIds.filter(itemId => itemId !== id);
     setCartProductIds(updated);
-    saveCartProductIds(updated);
+    saveCartProductIds(updated, uid);
     if (currentUser) {
       cloudRemoveCartItem(currentUser.uid, id);
     }
   };
 
   const handleClearCart = () => {
+    const uid = currentUser?.uid || null;
     const oldIds = [...cartProductIds];
     setCartProductIds([]);
-    saveCartProductIds([]);
+    saveCartProductIds([], uid);
     if (currentUser && oldIds.length > 0) {
       cloudClearCartCloud(currentUser.uid, oldIds);
     }
   };
 
   const handleToggleWishlist = (id: string) => {
-    const updated = toggleWishlistProduct(id, wishlistProductIds);
+    const uid = currentUser?.uid || null;
+    const updated = toggleWishlistProduct(id, wishlistProductIds, uid);
     setWishlistProductIds(updated);
-    setWishlistEntries(getWishlistEntries());
+    setWishlistEntries(getWishlistEntries(uid));
     if (currentUser) {
       const isNowInWishlist = updated.includes(id);
       if (isNowInWishlist) {
@@ -338,10 +355,11 @@ const AppContent: React.FC = () => {
   };
 
   const handleClearWishlist = () => {
+    const uid = currentUser?.uid || null;
     const oldIds = [...wishlistProductIds];
     setWishlistProductIds([]);
     setWishlistEntries([]);
-    saveWishlistEntries([]);
+    saveWishlistEntries([], uid);
     if (currentUser && oldIds.length > 0) {
       cloudClearWishlistCloud(currentUser.uid, oldIds);
     }

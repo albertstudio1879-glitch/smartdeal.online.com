@@ -42,8 +42,8 @@ export function setupCloudSync(
   const wishlistRef = collection(db, 'users', uid, 'wishlist');
 
   // Initial load & migration check:
-  // If cloud is completely empty for this user, but local storage has items (e.g. guest items before first login),
-  // migrate local items to this user's cloud collection.
+  // If cloud is completely empty for this user, but guest local storage has items before first login,
+  // migrate local guest items to this user's cloud collection ONCE.
   // Otherwise, cloud data is the source of truth and overrides local storage.
   (async () => {
     try {
@@ -51,28 +51,38 @@ export function setupCloudSync(
       const wishlistSnap = await getDocs(wishlistRef);
 
       if (cartSnap.empty && wishlistSnap.empty) {
-        const localCart = getCartProductIds();
-        const localQuantities = getCartQuantities();
-        const localWishlist = getWishlistEntries();
+        const migrationKey = `smart_deal_migrated_${uid}`;
+        const alreadyMigrated = localStorage.getItem(migrationKey) === 'true';
 
-        if (localCart.length > 0 || localWishlist.length > 0) {
-          const batch = writeBatch(db);
-          localCart.forEach(id => {
-            const itemRef = doc(cartRef, id);
-            batch.set(itemRef, {
-              productId: id,
-              quantity: localQuantities[id] || 1,
-              addedAt: Date.now()
+        if (!alreadyMigrated) {
+          const localCart = getCartProductIds(null);
+          const localQuantities = getCartQuantities(null);
+          const localWishlist = getWishlistEntries(null);
+
+          if (localCart.length > 0 || localWishlist.length > 0) {
+            const batch = writeBatch(db);
+            localCart.forEach(id => {
+              const itemRef = doc(cartRef, id);
+              batch.set(itemRef, {
+                productId: id,
+                quantity: localQuantities[id] || 1,
+                addedAt: Date.now()
+              });
             });
-          });
-          localWishlist.forEach(w => {
-            const itemRef = doc(wishlistRef, w.id);
-            batch.set(itemRef, {
-              productId: w.id,
-              addedAt: w.addedAt
+            localWishlist.forEach(w => {
+              const itemRef = doc(wishlistRef, w.id);
+              batch.set(itemRef, {
+                productId: w.id,
+                addedAt: w.addedAt
+              });
             });
-          });
-          await batch.commit();
+            await batch.commit();
+            // Clear guest storage after migrating once
+            saveCartProductIds([], null);
+            saveCartQuantities({}, null);
+            saveWishlistEntries([], null);
+          }
+          localStorage.setItem(migrationKey, 'true');
         }
       }
     } catch (err) {
@@ -91,9 +101,9 @@ export function setupCloudSync(
         quantities[data.productId] = typeof data.quantity === 'number' ? data.quantity : 1;
       }
     });
-    // Save to local cache & update UI
-    saveCartProductIds(ids);
-    saveCartQuantities(quantities);
+    // Save to user-scoped local cache & update UI
+    saveCartProductIds(ids, uid);
+    saveCartQuantities(quantities, uid);
     onCartSync(ids, quantities);
   }, (err) => {
     console.error('Cart snapshot sync error:', err);
@@ -113,7 +123,7 @@ export function setupCloudSync(
     });
     // Sort by addedAt descending (newest first)
     entries.sort((a, b) => b.addedAt - a.addedAt);
-    saveWishlistEntries(entries);
+    saveWishlistEntries(entries, uid);
     onWishlistSync(entries);
   }, (err) => {
     console.error('Wishlist snapshot sync error:', err);
