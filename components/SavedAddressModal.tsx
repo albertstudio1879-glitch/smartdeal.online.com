@@ -178,7 +178,7 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
           if (pin) setPinCode(pin);
 
           setLocationMsg('GPS location detected successfully! Please review and edit fields below.');
-          setTimeout(() => setLocationMsg(null), 5000);
+          setTimeout(() => setLocationMsg(null), 8000);
         } catch (err) {
           console.error('Reverse geocode error:', err);
           setFormError('Could not retrieve address details from your location. Please enter manually.');
@@ -552,8 +552,8 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
             <form onSubmit={handleSaveAddress} className="p-6 space-y-4 overflow-y-auto flex-1">
               
-              {/* Three Location Options */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {/* Two Location Options */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <button
                   type="button"
                   onClick={handleUseCurrentLocation}
@@ -575,19 +575,6 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                 >
                   <span className="text-base">🗺️</span>
                   <span>Select on Google Map</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLocationSource('manual');
-                    setLocationMsg('Manual address entry mode ready.');
-                    setTimeout(() => setLocationMsg(null), 3000);
-                  }}
-                  className="py-2.5 px-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:bg-gray-100 text-gray-700 dark:text-gray-300 font-bold text-[11px] rounded-xl shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
-                >
-                  <span className="text-base">✏️</span>
-                  <span>Enter Manually</span>
                 </button>
               </div>
 
