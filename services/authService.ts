@@ -12,6 +12,7 @@ import {
   updateDoc 
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
+import { registerCurrentDevice } from './deviceService';
 
 export interface UserAccount {
   uid: string;
@@ -126,6 +127,7 @@ async function syncUserProfile(fbUser: FirebaseUser): Promise<UserAccount> {
     };
   }
 
+  await registerCurrentDevice(uid);
   saveLocalUser(userProfile);
   return userProfile;
 }
@@ -194,6 +196,7 @@ export function initAuthListener(onUserChange: (user: UserAccount | null) => voi
           const profile = snap.data() as UserAccount;
           saveLocalUser(profile);
           onUserChange(profile);
+          await registerCurrentDevice(fbUser.uid);
           return;
         } else {
           const profile = await syncUserProfile(fbUser);

@@ -8,8 +8,9 @@ import {
   X, Moon, Sun, Monitor, Languages, ShoppingCart, 
   HelpCircle, Info, Scale, ShieldCheck, ChevronRight,
   ExternalLink, Mail, Check, Heart, Phone, LogIn, LogOut,
-  User, Edit3
+  User, Edit3, Smartphone
 } from 'lucide-react';
+import { ManageDevicesModal } from './ManageDevicesModal';
 
 interface AccountDrawerProps {
   isOpen: boolean;
@@ -46,6 +47,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getLocalUser());
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showManageDevicesModal, setShowManageDevicesModal] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
@@ -274,6 +276,33 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
                   <div className="text-xs font-bold text-gray-800 dark:text-gray-200">My Profile</div>
                   <div className="text-[11px] text-gray-500 dark:text-gray-400">
                     {currentUser ? 'View & edit name, phone & email' : 'Sign in to view your profile'}
+                  </div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+
+            {/* Manage Devices Button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!currentUser) {
+                  onClose();
+                  onOpenLogin();
+                } else {
+                  setShowManageDevicesModal(true);
+                }
+              }}
+              className="w-full p-3.5 bg-blue-50 dark:bg-slate-800 rounded-xl border border-blue-200 dark:border-slate-700 flex items-center justify-between hover:border-blue-400 transition-colors group cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+                  <Smartphone className="w-5 h-5 text-white" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold text-gray-800 dark:text-gray-200">Manage Devices</div>
+                  <div className="text-[11px] text-gray-500 dark:text-gray-400">
+                    {currentUser ? 'View & manage active sessions' : 'Sign in to view devices'}
                   </div>
                 </div>
               </div>
@@ -631,6 +660,13 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
           </div>
         </div>
       )}
+      {/* Manage Devices Modal / Page */}
+      <ManageDevicesModal 
+        isOpen={showManageDevicesModal} 
+        onClose={() => setShowManageDevicesModal(false)} 
+        currentUser={currentUser} 
+        onOpenLogin={onOpenLogin} 
+      />
     </div>
   );
 };

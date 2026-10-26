@@ -30,6 +30,17 @@ service cloud.firestore {
         && (!('phoneNumber' in data) || (data.phoneNumber is string && data.phoneNumber.size() <= 30));
     }
 
+    function isValidDevice(data) {
+      return data.keys().hasAll(['id', 'deviceName', 'browser', 'os', 'registeredAt', 'lastActiveAt'])
+        && data.keys().hasOnly(['id', 'deviceName', 'browser', 'os', 'isCurrent', 'registeredAt', 'lastActiveAt', 'location'])
+        && data.id is string && data.id.size() <= 128
+        && data.deviceName is string && data.deviceName.size() <= 100
+        && data.browser is string && data.browser.size() <= 50
+        && data.os is string && data.os.size() <= 50
+        && data.registeredAt is number
+        && data.lastActiveAt is number;
+    }
+
     // User profile document rules
     match /users/{uid} {
       allow get: if isOwner(uid);
@@ -37,6 +48,14 @@ service cloud.firestore {
       allow create: if isOwner(uid) && request.resource.data.id == uid && isValidUserProfile(request.resource.data);
       allow update: if isOwner(uid) && resource.data.id == request.resource.data.id && resource.data.createdAt == request.resource.data.createdAt && isValidUserProfile(request.resource.data) && request.resource.data.role == resource.data.role;
       allow delete: if false;
+    }
+
+    // User devices subcollection rules
+    match /users/{uid}/devices/{deviceId} {
+      allow get, list: if isOwner(uid);
+      allow create: if isOwner(uid) && isValidId(deviceId) && request.resource.data.id == deviceId && isValidDevice(request.resource.data);
+      allow update: if isOwner(uid) && isValidId(deviceId) && request.resource.data.id == resource.data.id && request.resource.data.registeredAt == resource.data.registeredAt && isValidDevice(request.resource.data);
+      allow delete: if isOwner(uid) && isValidId(deviceId);
     }
 
     // User subcollections (cart, wishlist, orders, etc.)
