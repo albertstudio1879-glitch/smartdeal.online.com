@@ -32,26 +32,13 @@ function MapContent({
   onAddressResolved: (data: any) => void;
 }) {
   const map = useMap();
-  const placesLib = useMapsLibrary('places');
   const geocodingLib = useMapsLibrary('geocoding');
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [predictions, setPredictions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
   const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
-
-  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
-  const placesService = useRef<google.maps.places.PlacesService | null>(null);
-
-  useEffect(() => {
-    if (placesLib && !autocompleteService.current) {
-      autocompleteService.current = new google.maps.places.AutocompleteService();
-    }
-    if (placesLib && map && !placesService.current) {
-      placesService.current = new google.maps.places.PlacesService(map);
-    }
-  }, [placesLib, map]);
 
   useEffect(() => {
     if (map && selectedPos) {
@@ -60,26 +47,30 @@ function MapContent({
   }, [selectedPos, map]);
 
   useEffect(() => {
-    if (!searchQuery.trim() || !autocompleteService.current) {
+    if (!searchQuery.trim() || searchQuery.length < 2) {
       setPredictions([]);
       return;
     }
 
-    const timer = setTimeout(() => {
-      autocompleteService.current?.getPlacePredictions(
-        { 
-          input: searchQuery.trim(),
-          componentRestrictions: { country: ['in'] } // Prioritize India
-        }, 
-        (results, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            setPredictions(results);
-          } else {
-            setPredictions([]);
-          }
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery.trim())}&countrycodes=in&addressdetails=1&limit=5`, {
+          headers: { 'Accept-Language': 'en' }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPredictions(data);
+        } else {
+          setPredictions([]);
         }
-      );
-    }, 300);
+      } catch (err) {
+        console.error('Search error:', err);
+        setPredictions([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 350);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -151,68 +142,20 @@ function MapContent({
     }
   };
 
-  const handleSelectPrediction = (placeId: string, description: string) => {
+  const handleSelectPrediction = async (item: any) => {
+    const lat = parseFloat(item.lat);
+    const lng = parseFloat(item.lon);
+    const description = item.display_name;
     setSearchQuery(description);
     setPredictions([]);
-    if (!placesService.current || !map) return;
 
-    placesService.current.getDetails(
-      { placeId, fields: ['geometry', 'formatted_address', 'address_components'] },
-      (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && place && place.geometry && place.geometry.location) {
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          setSelectedPos({ lat, lng });
-          map.panTo({ lat, lng });
-          map.setZoom(16);
-
-          const formatted = place.formatted_address || description;
-          setResolvedAddress(formatted);
-
-          let houseName = '';
-          let street = '';
-          let city = '';
-          let district = '';
-          let state = '';
-          let pinCode = '';
-
-          if (place.address_components) {
-            for (const component of place.address_components) {
-              const types = component.types;
-              if (types.includes('subpremise') || types.includes('premise') || types.includes('establishment')) {
-                houseName = component.long_name;
-              } else if (types.includes('route')) {
-                street = component.long_name;
-              } else if (types.includes('sublocality') || types.includes('neighborhood')) {
-                if (!street) street = component.long_name;
-              } else if (types.includes('locality')) {
-                city = component.long_name;
-              } else if (types.includes('administrative_area_level_2')) {
-                district = component.long_name;
-              } else if (types.includes('administrative_area_level_1')) {
-                state = component.long_name;
-              } else if (types.includes('postal_code')) {
-                pinCode = component.long_name;
-              }
-            }
-          }
-
-          if (!houseName && street) houseName = street;
-
-          onAddressResolved({
-            latitude: lat,
-            longitude: lng,
-            formattedAddress: formatted,
-            houseName,
-            street: street || formatted.split(',')[0] || '',
-            city,
-            district: district || city,
-            state,
-            pinCode
-          });
-        }
-      }
-    );
+    const newPos = { lat, lng };
+    setSelectedPos(newPos);
+    if (map) {
+      map.panTo(newPos);
+      map.setZoom(16);
+    }
+    await reverseGeocode(lat, lng);
   };
 
   return (
@@ -228,19 +171,20 @@ function MapContent({
               placeholder="Search place, street, area, or PIN code..."
               className="w-full text-xs bg-transparent text-gray-900 dark:text-white focus:outline-none"
             />
+            {isSearching && <Loader2 className="w-3.5 h-3.5 text-blue-600 animate-spin flex-shrink-0 ml-2" />}
           </div>
 
           {predictions.length > 0 && (
             <div className="border-t border-gray-100 dark:border-slate-800 max-h-60 overflow-y-auto bg-white dark:bg-slate-900">
-              {predictions.map(pred => (
+              {predictions.map((pred, idx) => (
                 <button
-                  key={pred.place_id}
+                  key={idx}
                   type="button"
-                  onClick={() => handleSelectPrediction(pred.place_id, pred.description)}
+                  onClick={() => handleSelectPrediction(pred)}
                   className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-800 text-xs text-gray-700 dark:text-gray-300 border-b border-gray-50 dark:border-slate-850 flex items-center gap-2 cursor-pointer"
                 >
                   <MapPin className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-                  <span className="truncate">{pred.description}</span>
+                  <span className="truncate">{pred.display_name}</span>
                 </button>
               ))}
             </div>

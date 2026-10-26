@@ -189,12 +189,13 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
       (error) => {
         setIsLocating(false);
         console.error('Geolocation error:', error);
-        if (error.code === error.PERMISSION_DENIED) {
+        const errCode = error?.code;
+        if (errCode === 1) {
           setFormError('Location permission denied. Please allow location access in your browser or enter your address manually.');
-        } else if (error.code === error.TIMEOUT) {
+        } else if (errCode === 3) {
           setFormError("We couldn't detect your location in time. Please check that Location/GPS is enabled, allow browser location permission, and try again.");
         } else {
-          setFormError('Unable to retrieve your location. Please enter manually.');
+          setFormError('Unable to retrieve your location. Please check browser location permissions or enter your address manually.');
         }
       },
       { timeout: 25000, enableHighAccuracy: false, maximumAge: 60000 }
