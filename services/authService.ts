@@ -151,10 +151,20 @@ export async function logoutUser(): Promise<void> {
   }
   saveLocalUser(null);
   try {
+    localStorage.removeItem(LOCAL_USER_KEY);
     localStorage.removeItem('smart_deal_cart_guest');
     localStorage.removeItem('smart_deal_cart_quantities_guest');
     localStorage.removeItem('smart_deal_guest_wishlist_v2');
     localStorage.removeItem('smart_deal_guest_wishlist');
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('smart_deal_cart_') || key.includes('smart_deal_wishlist_') || key.includes('smart_deal_migrated_'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    sessionStorage.clear();
   } catch {
     // ignore
   }
