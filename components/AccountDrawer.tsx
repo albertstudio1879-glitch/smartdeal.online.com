@@ -80,7 +80,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
                   {currentUser?.displayName || 'Smart Deal Member'}
                 </h2>
                 <p className="text-xs text-blue-100 truncate">
-                  {currentUser?.phoneNumber || currentUser?.email || 'Passwordless OTP Login'}
+                  {currentUser?.email || currentUser?.uid || 'Google Sign-In Active'}
                 </p>
               </div>
             </div>
@@ -97,14 +97,14 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             
-            {/* Passwordless Login / Account Card */}
+            {/* Google Login / Account Card */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-4 border border-blue-200 dark:border-blue-800/60 flex items-center justify-between">
               <div>
                 <h4 className="text-xs font-bold text-blue-900 dark:text-blue-200">
-                  {currentUser ? 'Passwordless Session Active' : 'Login / Signup with OTP'}
+                  {currentUser ? 'Google Session Active' : 'Sign in with Google'}
                 </h4>
                 <p className="text-[11px] text-blue-700 dark:text-blue-300">
-                  {currentUser ? (currentUser.phoneNumber || currentUser.email || 'Verified User') : 'Fast SMS & Email OTP (No Password)'}
+                  {currentUser ? (currentUser.email || 'Verified User') : 'Fast & Secure Google Authentication'}
                 </p>
               </div>
               {currentUser ? (
@@ -129,7 +129,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
                   className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg transition-transform active:scale-95 shadow-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5" />
-                  <span>Login / OTP</span>
+                  <span>Sign In</span>
                 </button>
               )}
             </div>
