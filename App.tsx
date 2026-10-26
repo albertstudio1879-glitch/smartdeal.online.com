@@ -131,7 +131,7 @@ const AppContent: React.FC = () => {
   });
 
   // User Authentication State for Cloud Sync
-  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getLocalUser());
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
 
   useEffect(() => {
     const unsubAuth = initAuthListener((u) => {
@@ -148,7 +148,7 @@ const AppContent: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!currentUser) {
+    if (!currentUser || !currentUser.uid) {
       setCartProductIds(getCartProductIds(null));
       setWishlistProductIds(getWishlistProductIds(null));
       setWishlistEntries(getWishlistEntries(null));

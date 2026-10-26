@@ -156,11 +156,6 @@ export async function logoutUser(): Promise<void> {
  * Listen to auth changes and sync with local storage
  */
 export function initAuthListener(onUserChange: (user: UserAccount | null) => void): () => void {
-  const cached = getLocalUser();
-  if (cached) {
-    onUserChange(cached);
-  }
-
   const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
     if (fbUser) {
       try {
@@ -171,12 +166,27 @@ export function initAuthListener(onUserChange: (user: UserAccount | null) => voi
           saveLocalUser(profile);
           onUserChange(profile);
           return;
+        } else {
+          const profile = await syncUserProfile(fbUser);
+          onUserChange(profile);
+          return;
         }
-      } catch {
-        // fallback
+      } catch (err) {
+        console.error('Auth state sync error:', err);
       }
+      const cached = getLocalUser();
       if (cached) {
         onUserChange(cached);
+      } else {
+        onUserChange({
+          uid: fbUser.uid,
+          email: fbUser.email,
+          displayName: fbUser.displayName || 'Smart Deal Member',
+          avatar: fbUser.photoURL || '',
+          role: 'customer',
+          createdAt: Date.now(),
+          lastLoginAt: Date.now()
+        });
       }
     } else {
       saveLocalUser(null);

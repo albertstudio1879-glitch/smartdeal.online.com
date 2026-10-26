@@ -34,12 +34,12 @@ service cloud.firestore {
 
     // Cart subcollection for user (cross-device sync)
     match /users/{userId}/cart/{itemId} {
-      allow read, write: if isOwner(userId) && isValidId(itemId);
+      allow read, write: if isOwner(userId) && itemId is string && itemId.size() > 0 && itemId.size() <= 256;
     }
 
     // Wishlist subcollection for user (cross-device sync)
     match /users/{userId}/wishlist/{itemId} {
-      allow read, write: if isOwner(userId) && isValidId(itemId);
+      allow read, write: if isOwner(userId) && itemId is string && itemId.size() > 0 && itemId.size() <= 256;
     }
 
     // Passwordless / Phone OTP verification tracking (legacy support if needed)

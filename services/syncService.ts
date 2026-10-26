@@ -38,52 +38,72 @@ export function setupCloudSync(
   onCartSync: (ids: string[], quantities: Record<string, number>) => void,
   onWishlistSync: (entries: WishlistEntry[]) => void
 ): () => void {
+  if (!uid || typeof uid !== 'string') {
+    return () => {};
+  }
   const cartRef = collection(db, 'users', uid, 'cart');
   const wishlistRef = collection(db, 'users', uid, 'wishlist');
 
   // Initial load & migration check:
-  // If cloud is completely empty for this user, but guest local storage has items before first login,
-  // migrate local guest items to this user's cloud collection ONCE.
-  // Otherwise, cloud data is the source of truth and overrides local storage.
+  // On login, merge any guest localStorage items into Firestore once (union by productId, keep the higher qty), then clear the local copy.
   (async () => {
     try {
-      const cartSnap = await getDocs(cartRef);
-      const wishlistSnap = await getDocs(wishlistRef);
+      const migrationKey = `smart_deal_migrated_${uid}`;
+      const alreadyMigrated = localStorage.getItem(migrationKey) === 'true';
 
-      if (cartSnap.empty && wishlistSnap.empty) {
-        const migrationKey = `smart_deal_migrated_${uid}`;
-        const alreadyMigrated = localStorage.getItem(migrationKey) === 'true';
+      if (!alreadyMigrated) {
+        const localCart = getCartProductIds(null);
+        const localQuantities = getCartQuantities(null);
+        const localWishlist = getWishlistEntries(null);
 
-        if (!alreadyMigrated) {
-          const localCart = getCartProductIds(null);
-          const localQuantities = getCartQuantities(null);
-          const localWishlist = getWishlistEntries(null);
+        if (localCart.length > 0 || localWishlist.length > 0) {
+          const cartSnap = await getDocs(cartRef);
+          const wishlistSnap = await getDocs(wishlistRef);
 
-          if (localCart.length > 0 || localWishlist.length > 0) {
-            const batch = writeBatch(db);
-            localCart.forEach(id => {
-              const itemRef = doc(cartRef, id);
-              batch.set(itemRef, {
-                productId: id,
-                quantity: localQuantities[id] || 1,
-                addedAt: Date.now()
-              });
-            });
-            localWishlist.forEach(w => {
+          const existingCartMap = new Map<string, number>();
+          cartSnap.forEach(d => {
+            const data = d.data();
+            existingCartMap.set(data.productId, data.qty ?? data.quantity ?? 1);
+          });
+
+          const existingWishlistSet = new Set<string>();
+          wishlistSnap.forEach(d => {
+            const data = d.data();
+            existingWishlistSet.add(data.productId);
+          });
+
+          const batch = writeBatch(db);
+
+          localCart.forEach(id => {
+            const guestQty = localQuantities[id] || 1;
+            const existingQty = existingCartMap.get(id);
+            const finalQty = existingQty !== undefined ? Math.max(existingQty, guestQty) : guestQty;
+            const itemRef = doc(cartRef, id);
+            batch.set(itemRef, {
+              productId: id,
+              qty: finalQty,
+              updatedAt: Date.now()
+            }, { merge: true });
+          });
+
+          localWishlist.forEach(w => {
+            if (!existingWishlistSet.has(w.id)) {
               const itemRef = doc(wishlistRef, w.id);
               batch.set(itemRef, {
                 productId: w.id,
                 addedAt: w.addedAt
-              });
-            });
-            await batch.commit();
-            // Clear guest storage after migrating once
-            saveCartProductIds([], null);
-            saveCartQuantities({}, null);
-            saveWishlistEntries([], null);
-          }
-          localStorage.setItem(migrationKey, 'true');
+              }, { merge: true });
+            }
+          });
+
+          await batch.commit();
+
+          // Clear guest localStorage copy
+          saveCartProductIds([], null);
+          saveCartQuantities({}, null);
+          saveWishlistEntries([], null);
         }
+        localStorage.setItem(migrationKey, 'true');
       }
     } catch (err) {
       console.error('Initial cloud migration error for UID:', uid, err);
@@ -95,10 +115,10 @@ export function setupCloudSync(
     const ids: string[] = [];
     const quantities: Record<string, number> = {};
     snapshot.forEach(docSnap => {
-      const data = docSnap.data() as CloudCartItem;
+      const data = docSnap.data();
       if (data && data.productId) {
         ids.push(data.productId);
-        quantities[data.productId] = typeof data.quantity === 'number' ? data.quantity : 1;
+        quantities[data.productId] = typeof data.qty === 'number' ? data.qty : (typeof data.quantity === 'number' ? data.quantity : 1);
       }
     });
     // Save to user-scoped local cache & update UI
@@ -113,7 +133,7 @@ export function setupCloudSync(
   const unsubWishlist = onSnapshot(wishlistRef, (snapshot) => {
     const entries: WishlistEntry[] = [];
     snapshot.forEach(docSnap => {
-      const data = docSnap.data() as CloudWishlistItem;
+      const data = docSnap.data();
       if (data && data.productId) {
         entries.push({
           id: data.productId,
@@ -136,37 +156,31 @@ export function setupCloudSync(
 }
 
 // Cloud mutation functions bound strictly to user UID
-export async function cloudAddCartItem(uid: string, productId: string, quantity: number = 1) {
+export async function cloudAddCartItem(uid: string, productId: string, qty: number = 1) {
   if (!uid) return;
   try {
     const ref = doc(db, 'users', uid, 'cart', productId);
     await setDoc(ref, {
       productId,
-      quantity,
-      addedAt: Date.now()
+      qty,
+      updatedAt: Date.now()
     }, { merge: true });
   } catch (err) {
     console.error('cloudAddCartItem error:', err);
   }
 }
 
-export async function cloudUpdateCartQuantity(uid: string, productId: string, quantity: number) {
+export async function cloudUpdateCartQuantity(uid: string, productId: string, qty: number) {
   if (!uid) return;
   try {
     const ref = doc(db, 'users', uid, 'cart', productId);
-    await updateDoc(ref, { quantity });
+    await setDoc(ref, {
+      productId,
+      qty,
+      updatedAt: Date.now()
+    }, { merge: true });
   } catch (err) {
-    // If doc doesn't exist yet, setDoc with merge
-    try {
-      const ref = doc(db, 'users', uid, 'cart', productId);
-      await setDoc(ref, {
-        productId,
-        quantity,
-        addedAt: Date.now()
-      }, { merge: true });
-    } catch (innerErr) {
-      console.error('cloudUpdateCartQuantity error:', innerErr);
-    }
+    console.error('cloudUpdateCartQuantity error:', err);
   }
 }
 
