@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserAccount } from '../services/authService';
 import { AddressRecord, fetchUserAddresses, saveAddressRecord, deleteAddressRecord, setDefaultAddress } from '../services/addressService';
+import { GoogleMapSelectorModal } from './GoogleMapSelectorModal';
 import { 
   X, ArrowLeft, Plus, MapPin, Trash2, Edit3, CheckCircle2, 
   AlertCircle, Home, Briefcase, Building2, Phone, User, Check
@@ -28,10 +29,13 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
   // Form Modal state
   const [showFormModal, setShowFormModal] = useState(false);
+  const [showGoogleMapModal, setShowGoogleMapModal] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationMsg, setLocationMsg] = useState<string | null>(null);
 
-  // Form fields (Required vs Optional)
+  // Form fields
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [houseName, setHouseName] = useState('');
@@ -44,6 +48,10 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
   const [pinCode, setPinCode] = useState('');
   const [addressType, setAddressType] = useState<'Home' | 'Work' | 'Other'>('Home');
   const [isDefault, setIsDefault] = useState(false); // Optional
+  const [latitude, setLatitude] = useState<number | undefined>(undefined);
+  const [longitude, setLongitude] = useState<number | undefined>(undefined);
+  const [formattedAddress, setFormattedAddress] = useState<string | undefined>(undefined);
+  const [locationSource, setLocationSource] = useState<'gps' | 'google_map' | 'manual'>('manual');
   const [formError, setFormError] = useState<string | null>(null);
 
   // Delete confirmation state
@@ -91,8 +99,13 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
     setPinCode('');
     setAddressType('Home');
     setIsDefault(addresses.length === 0);
+    setLatitude(undefined);
+    setLongitude(undefined);
+    setFormattedAddress(undefined);
+    setLocationSource('manual');
     setEditingAddressId(null);
     setFormError(null);
+    setLocationMsg(null);
   };
 
   const handleOpenAdd = () => {
@@ -114,8 +127,105 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
     setPinCode(addr.pinCode || '');
     setAddressType(addr.addressType || 'Home');
     setIsDefault(addr.isDefault || false);
+    setLatitude(addr.latitude);
+    setLongitude(addr.longitude);
+    setFormattedAddress(addr.formattedAddress);
+    setLocationSource(addr.locationSource || 'manual');
     setFormError(null);
+    setLocationMsg(null);
     setShowFormModal(true);
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setFormError('Geolocation is not supported by your browser.');
+      return;
+    }
+    setIsLocating(true);
+    setLocationMsg('Detecting your current location via GPS...');
+    setFormError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude: lat, longitude: lng } = position.coords;
+          setLatitude(lat);
+          setLongitude(lng);
+          setLocationSource('gps');
+
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+            headers: { 'Accept-Language': 'en' }
+          });
+          if (!res.ok) throw new Error('Reverse geocoding failed');
+          const data = await res.json();
+          const addr = data.address || {};
+          const formatted = data.display_name;
+
+          setFormattedAddress(formatted);
+
+          const hName = addr.building || addr.house_name || addr.suburb || addr.neighbourhood || addr.road || '';
+          const str = addr.road || addr.suburb || addr.neighbourhood || '';
+          const cty = addr.city || addr.town || addr.village || addr.municipality || '';
+          const dist = addr.county || addr.state_district || addr.city_district || '';
+          const st = addr.state || '';
+          const pin = addr.postcode || '';
+
+          if (hName) setHouseName(hName);
+          if (str) setStreet(str);
+          if (cty) setCity(cty);
+          if (dist) setDistrict(dist);
+          if (st) setStateName(st);
+          if (pin) setPinCode(pin);
+
+          setLocationMsg('GPS location detected successfully! Please review and edit fields below.');
+          setTimeout(() => setLocationMsg(null), 5000);
+        } catch (err) {
+          console.error('Reverse geocode error:', err);
+          setFormError('Could not retrieve address details from your location. Please enter manually.');
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (error) => {
+        setIsLocating(false);
+        console.error('Geolocation error:', error);
+        if (error.code === error.PERMISSION_DENIED) {
+          setFormError('Location permission denied. Please enter your address manually.');
+        } else if (error.code === error.TIMEOUT) {
+          setFormError('Location request timed out. Please try again or enter manually.');
+        } else {
+          setFormError('Unable to retrieve your location. Please enter manually.');
+        }
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  };
+
+  const handleMapLocationSelected = (data: {
+    latitude: number;
+    longitude: number;
+    formattedAddress: string;
+    houseName: string;
+    street: string;
+    city: string;
+    district: string;
+    state: string;
+    pinCode: string;
+  }) => {
+    setLatitude(data.latitude);
+    setLongitude(data.longitude);
+    setFormattedAddress(data.formattedAddress);
+    setLocationSource('google_map');
+
+    if (data.houseName) setHouseName(data.houseName);
+    if (data.street) setStreet(data.street);
+    if (data.city) setCity(data.city);
+    if (data.district) setDistrict(data.district);
+    if (data.state) setStateName(data.state);
+    if (data.pinCode) setPinCode(data.pinCode);
+
+    setLocationMsg('Google Map location confirmed successfully!');
+    setTimeout(() => setLocationMsg(null), 4000);
   };
 
   const handleSaveAddress = async (e: React.FormEvent) => {
@@ -172,6 +282,10 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
         pinCode: pin,
         addressType: addressType || 'Home',
         isDefault: isDefault || addresses.length === 0,
+        latitude,
+        longitude,
+        formattedAddress,
+        locationSource,
         createdAt: editingAddressId ? (addresses.find(a => a.id === editingAddressId)?.createdAt || now) : now,
         updatedAt: now
       };
@@ -332,6 +446,11 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                               Default
                             </span>
                           )}
+                          {addr.locationSource && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 uppercase">
+                              {addr.locationSource === 'gps' ? 'GPS' : addr.locationSource === 'google_map' ? 'Map Pin' : 'Manual'}
+                            </span>
+                          )}
                         </div>
                         <h3 className="text-sm font-bold text-gray-900 dark:text-white mt-1">
                           {addr.fullName}
@@ -431,6 +550,50 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
             </div>
 
             <form onSubmit={handleSaveAddress} className="p-6 space-y-4 overflow-y-auto flex-1">
+              
+              {/* Three Location Options */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleUseCurrentLocation}
+                  disabled={isLocating}
+                  className="py-2.5 px-3 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 text-blue-700 dark:text-blue-300 font-bold text-[11px] rounded-xl shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
+                >
+                  {isLocating ? (
+                    <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <MapPin className="w-4 h-4 text-blue-600" />
+                  )}
+                  <span>{isLocating ? 'Locating...' : '📍 Use Current Location'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowGoogleMapModal(true)}
+                  className="py-2.5 px-3 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 font-bold text-[11px] rounded-xl shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
+                >
+                  <span className="text-base">🗺️</span>
+                  <span>Select on Google Map</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocationSource('manual');
+                    setLocationMsg('Manual address entry mode ready.');
+                    setTimeout(() => setLocationMsg(null), 3000);
+                  }}
+                  className="py-2.5 px-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:bg-gray-100 text-gray-700 dark:text-gray-300 font-bold text-[11px] rounded-xl shadow-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-1"
+                >
+                  <span className="text-base">✏️</span>
+                  <span>Enter Manually</span>
+                </button>
+              </div>
+
+              {locationMsg && (
+                <p className="text-[11px] text-emerald-600 dark:text-emerald-400 text-center font-semibold">{locationMsg}</p>
+              )}
+
               {formError && (
                 <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 text-red-700 text-xs font-semibold rounded-xl text-center">
                   {formError}
@@ -640,6 +803,15 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
           </div>
         </div>
       )}
+
+      {/* Google Map Selector Modal */}
+      <GoogleMapSelectorModal 
+        isOpen={showGoogleMapModal}
+        onClose={() => setShowGoogleMapModal(false)}
+        onSelectLocation={handleMapLocationSelected}
+        initialLat={latitude}
+        initialLng={longitude}
+      />
 
     </div>
   );

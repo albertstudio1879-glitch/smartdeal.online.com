@@ -27,6 +27,10 @@ export interface AddressRecord {
   pinCode: string;
   addressType: 'Home' | 'Work' | 'Other';
   isDefault?: boolean;
+  latitude?: number;
+  longitude?: number;
+  formattedAddress?: string;
+  locationSource?: 'gps' | 'google_map' | 'manual';
   createdAt: number;
   updatedAt: number;
 }

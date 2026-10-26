@@ -43,7 +43,7 @@ service cloud.firestore {
 
     function isValidAddress(data) {
       return data.keys().hasAll(['id', 'fullName', 'phoneNumber', 'houseName', 'street', 'city', 'district', 'state', 'pinCode', 'addressType', 'createdAt', 'updatedAt'])
-        && data.keys().hasOnly(['id', 'fullName', 'phoneNumber', 'houseName', 'houseNumber', 'street', 'landmark', 'city', 'district', 'state', 'pinCode', 'addressType', 'isDefault', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'fullName', 'phoneNumber', 'houseName', 'houseNumber', 'street', 'landmark', 'city', 'district', 'state', 'pinCode', 'addressType', 'isDefault', 'latitude', 'longitude', 'formattedAddress', 'locationSource', 'createdAt', 'updatedAt'])
         && data.id is string && data.id.size() <= 128
         && data.fullName is string && data.fullName.size() <= 100
         && data.phoneNumber is string && data.phoneNumber.size() <= 20
@@ -57,6 +57,10 @@ service cloud.firestore {
         && data.pinCode is string && data.pinCode.size() <= 15
         && data.addressType in ['Home', 'Work', 'Other']
         && (!('isDefault' in data) || data.isDefault is bool)
+        && (!('latitude' in data) || data.latitude is number)
+        && (!('longitude' in data) || data.longitude is number)
+        && (!('formattedAddress' in data) || (data.formattedAddress is string && data.formattedAddress.size() <= 300))
+        && (!('locationSource' in data) || data.locationSource in ['gps', 'google_map', 'manual'])
         && data.createdAt is number
         && data.updatedAt is number;
     }
