@@ -102,14 +102,14 @@ export const BottomNav: React.FC<BottomNavProps> = ({
             }`}>
               <div className="relative flex items-center justify-center">
                 <Heart 
-                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform group-active:scale-90 ${
+                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform group-active:scale-90 animate-wishlist-heart ${
                     activeTab === 'wishlist' || wishlistCount > 0 
-                      ? 'stroke-[2.2px] text-pink-500 fill-pink-500' 
-                      : 'stroke-[1.8px]'
+                      ? 'stroke-[2.2px] text-[#FF3388] fill-[#FF3388]' 
+                      : 'stroke-[1.8px] text-[#FF3388]'
                   }`} 
                 />
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 min-w-[17px] h-[17px] px-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#FF3377] to-[#FF5588] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs animate-badge-bounce pointer-events-none select-none border border-white/20">
                     {wishlistCount > 99 ? '99+' : wishlistCount}
                   </span>
                 )}
@@ -133,12 +133,12 @@ export const BottomNav: React.FC<BottomNavProps> = ({
             }`}>
               <div className="relative flex items-center justify-center">
                 <ShoppingCart 
-                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform group-active:scale-90 ${
+                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform group-active:scale-90 animate-cart-running ${
                     activeTab === 'cart' ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
                   }`} 
                 />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 min-w-[17px] h-[17px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs animate-badge-bounce-offset pointer-events-none select-none border border-white/20">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}

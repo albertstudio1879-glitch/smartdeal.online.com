@@ -210,13 +210,15 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   type="button"
                   onClick={onOpenWishlist}
-                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-[#102448]/80 backdrop-blur-md border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive shadow-xs text-pink-500 relative cursor-pointer"
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-[#071329] backdrop-blur-md border border-[var(--glow-border)] hover:border-[var(--glow-border-hover)] glow-interactive shadow-[var(--glow-shadow-subtle)] hover:shadow-[var(--glow-shadow)] relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 active:scale-[0.97]"
                   title="My Wishlist"
                   aria-label="My Wishlist"
                 >
-                  <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'text-pink-500 fill-pink-500' : 'text-pink-500'}`} />
+                  <span className="animate-wishlist-heart inline-flex items-center justify-center pointer-events-none">
+                    <Heart className="w-5 h-5 text-[#FF3388] fill-[#FF3388]" />
+                  </span>
                   {wishlistCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-md">
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 bg-gradient-to-r from-[#FF3377] to-[#FF5588] text-white text-[11px] font-black rounded-full flex items-center justify-center shadow-md animate-badge-bounce pointer-events-none select-none border border-white/20">
                       {wishlistCount > 99 ? '99+' : wishlistCount}
                     </span>
                   )}
@@ -225,13 +227,15 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   type="button"
                   onClick={onOpenCart}
-                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-[#102448]/80 backdrop-blur-md border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive shadow-xs text-[#102A56] dark:text-[#F5F7FF] relative cursor-pointer"
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-[#071329] backdrop-blur-md border border-[var(--glow-border)] hover:border-[var(--glow-border-hover)] glow-interactive shadow-[var(--glow-shadow-subtle)] hover:shadow-[var(--glow-shadow)] relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 active:scale-[0.97]"
                   title="My Cart"
                   aria-label="My Cart"
                 >
-                  <ShoppingCart className="w-5 h-5" />
+                  <span className="animate-cart-running inline-flex items-center justify-center pointer-events-none">
+                    <ShoppingCart className="w-5 h-5 text-[#102A56] dark:text-white stroke-[2.2px]" />
+                  </span>
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-md">
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[11px] font-black rounded-full flex items-center justify-center shadow-md animate-badge-bounce-offset pointer-events-none select-none border border-white/20">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
@@ -296,13 +300,15 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenWishlist}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/70 dark:bg-[#102448]/70 backdrop-blur-md text-[#102A56] dark:text-[#F5F7FF] hover:text-pink-500 border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive transition-all font-semibold text-sm relative group shadow-xs cursor-pointer"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/70 dark:bg-[#102448]/70 backdrop-blur-md text-[#102A56] dark:text-[#F5F7FF] hover:text-pink-500 border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive transition-all font-semibold text-sm relative group shadow-xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 active:scale-[0.97]"
                 title="My Wishlist"
               >
-                <div className="relative">
-                  <Heart className={`w-4 h-4 transition-transform group-hover:scale-110 ${wishlistCount > 0 ? 'text-pink-500 fill-pink-500' : 'text-pink-500'}`} />
+                <div className="relative flex items-center justify-center">
+                  <span className="animate-wishlist-heart inline-flex items-center justify-center pointer-events-none">
+                    <Heart className="w-4 h-4 text-[#FF3388] fill-[#FF3388]" />
+                  </span>
                   {wishlistCount > 0 && (
-                    <span className="absolute -top-2 -right-2.5 min-w-[16px] h-[16px] px-0.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                    <span className="absolute -top-2.5 -right-3 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#FF3377] to-[#FF5588] text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-xs animate-badge-bounce pointer-events-none select-none border border-white/20">
                       {wishlistCount > 99 ? '99+' : wishlistCount}
                     </span>
                   )}
@@ -313,13 +319,15 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenCart}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/70 dark:bg-[#102448]/70 backdrop-blur-md text-[#102A56] dark:text-[#F5F7FF] hover:text-blue-600 dark:hover:text-cyan-400 border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive transition-all font-bold text-sm relative shadow-xs cursor-pointer"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/70 dark:bg-[#102448]/70 backdrop-blur-md text-[#102A56] dark:text-[#F5F7FF] hover:text-blue-600 dark:hover:text-cyan-400 border border-[var(--glow-border-subtle)] hover:border-[var(--glow-border)] glow-interactive transition-all font-bold text-sm relative shadow-xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 active:scale-[0.97]"
                 title="My Cart"
               >
-                <div className="relative">
-                  <ShoppingCart className="w-4 h-4" />
+                <div className="relative flex items-center justify-center">
+                  <span className="animate-cart-running inline-flex items-center justify-center pointer-events-none">
+                    <ShoppingCart className="w-4 h-4 text-[#102A56] dark:text-white stroke-[2.2px]" />
+                  </span>
                   {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2.5 min-w-[16px] h-[16px] px-0.5 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                    <span className="absolute -top-2.5 -right-3 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#6C3BFF] to-[#2589FF] text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-xs animate-badge-bounce-offset pointer-events-none select-none border border-white/20">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}

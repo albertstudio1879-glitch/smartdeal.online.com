@@ -244,10 +244,138 @@
         cursor: not-allowed;
       }
 
+      /* ============================================================
+         1. Wishlist Heartbeat Animation ❤️
+         Natural double-pulse heartbeat: 1 -> 1.16 -> 1.02 -> 1.22 -> 1
+         Total cycle ~2s with rich pink luminous glow
+         ============================================================ */
+      @keyframes wishlist-heartbeat {
+        0%, 100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 0 rgba(255, 51, 136, 0));
+        }
+        10% {
+          transform: scale(1.16);
+          filter: drop-shadow(0 0 8px rgba(255, 51, 136, 0.85));
+        }
+        20% {
+          transform: scale(1.02);
+          filter: drop-shadow(0 0 3px rgba(255, 51, 136, 0.4));
+        }
+        32% {
+          transform: scale(1.22);
+          filter: drop-shadow(0 0 12px rgba(255, 51, 136, 0.95));
+        }
+        48% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 0 rgba(255, 51, 136, 0));
+        }
+      }
+
+      .animate-wishlist-heart {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transform-origin: center center;
+        transform-box: fill-box;
+        animation: wishlist-heartbeat 2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+        will-change: transform, filter;
+      }
+
+      /* ============================================================
+         2. Running Shopping Cart Animation 🛒
+         Smooth running motion: forward roll (3-4px),
+         tilt (-3.5deg to 3deg), upward bounce (-2px),
+         and gentle cyan glow. Total cycle ~2.5s with pause
+         ============================================================ */
+      @keyframes cart-running {
+        0%, 100% {
+          transform: translate3d(0, 0, 0) rotate(0deg);
+          filter: drop-shadow(0 0 0 rgba(0, 217, 255, 0));
+        }
+        12% {
+          transform: translate3d(1.8px, -2px, 0) rotate(-3.5deg);
+          filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.65));
+        }
+        24% {
+          transform: translate3d(3.5px, 0.5px, 0) rotate(3deg);
+          filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.85));
+        }
+        36% {
+          transform: translate3d(1.6px, -1.4px, 0) rotate(-2deg);
+          filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
+        }
+        48% {
+          transform: translate3d(0, 0, 0) rotate(0deg);
+          filter: drop-shadow(0 0 0 rgba(0, 217, 255, 0));
+        }
+      }
+
+      .animate-cart-running {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transform-origin: center bottom;
+        transform-box: fill-box;
+        animation: cart-running 2.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+        will-change: transform, filter;
+      }
+
+      /* ============================================================
+         3. Notification Number Badge Bounce Animation 🔵
+         Playful upward bounce (-6px) + scale (1 to 1.12)
+         Bounce duration ~500ms, repeat interval ~3s
+         Offset applied between badges to avoid robotic synchronization
+         ============================================================ */
+      @keyframes badge-bounce {
+        0%, 100% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+        6% {
+          transform: translate3d(0, -6px, 0) scale(1.12);
+        }
+        12% {
+          transform: translate3d(0, 1px, 0) scale(0.96);
+        }
+        18% {
+          transform: translate3d(0, -3px, 0) scale(1.05);
+        }
+        24% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+      }
+
+      .animate-badge-bounce {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform-origin: center bottom;
+        animation: badge-bounce 3s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+        will-change: transform;
+      }
+
+      .animate-badge-bounce-offset {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform-origin: center bottom;
+        animation: badge-bounce 3s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+        animation-delay: 1.5s;
+        will-change: transform;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .glow-card, .glow-panel, .glow-featured, .glow-subtle, .glow-interactive, .glow-btn-primary {
           transition: none !important;
           transform: none !important;
+        }
+        .animate-wishlist-heart,
+        .animate-cart-running,
+        .animate-badge-bounce,
+        .animate-badge-bounce-offset {
+          animation: none !important;
+          transform: none !important;
+          filter: none !important;
         }
       }
     </style>
