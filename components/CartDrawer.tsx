@@ -5,7 +5,7 @@ import {
   X, Trash2, Zap, ChevronDown, 
   Info, ArrowRight, ShoppingCart, Heart, Calendar, ArrowLeft, RefreshCw
 } from 'lucide-react';
-import { WishlistEntry, getWishlistEntries } from '../services/storageService';
+import { WishlistEntry, getWishlistEntries, getCartQuantities, saveCartQuantities } from '../services/storageService';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -23,6 +23,7 @@ interface CartDrawerProps {
   onClearWishlist?: () => void;
   onAddToCart?: (id: string) => void;
   initialTab?: 'cart' | 'wishlist';
+  onUpdateQuantity?: (id: string, qty: number) => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -41,9 +42,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onClearWishlist,
   onAddToCart,
   initialTab = 'cart',
+  onUpdateQuantity,
 }) => {
   const [activeTab, setActiveTab] = useState<'cart' | 'wishlist'>(initialTab);
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [quantities, setQuantities] = useState<Record<string, number>>(() => getCartQuantities());
   const [activeQtyDropdown, setActiveQtyDropdown] = useState<string | null>(null);
   const [wishlistDateFilter, setWishlistDateFilter] = useState<'recently' | '1month' | '3months' | '1year'>('recently');
   const [renderError, setRenderError] = useState<string | null>(null);
@@ -51,6 +53,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   useEffect(() => {
     if (initialTab) {
       setActiveTab(initialTab);
+    }
+    if (isOpen) {
+      setQuantities(getCartQuantities());
     }
   }, [initialTab, isOpen]);
 
@@ -137,7 +142,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   const handleQuantityChange = (id: string, qty: number) => {
-    setQuantities(prev => ({ ...prev, [String(id)]: qty }));
+    setQuantities(prev => {
+      const updated = { ...prev, [String(id)]: qty };
+      saveCartQuantities(updated);
+      return updated;
+    });
+    if (onUpdateQuantity) {
+      onUpdateQuantity(id, qty);
+    }
     setActiveQtyDropdown(null);
   };
 

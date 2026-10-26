@@ -18,6 +18,7 @@ import { UserAccount, initAuthListener, getLocalUser } from './services/authServ
 import { 
   setupCloudSync, 
   cloudAddCartItem, 
+  cloudUpdateCartQuantity,
   cloudRemoveCartItem, 
   cloudClearCartCloud, 
   cloudAddWishlistItem, 
@@ -679,6 +680,11 @@ const AppContent: React.FC = () => {
         onClearWishlist={handleClearWishlist}
         onAddToCart={handleToggleCart}
         initialTab={cartDrawerInitialTab}
+        onUpdateQuantity={(id, qty) => {
+          if (currentUser) {
+            cloudUpdateCartQuantity(currentUser.uid, id, qty);
+          }
+        }}
       />
 
       {/* Account Drawer */}

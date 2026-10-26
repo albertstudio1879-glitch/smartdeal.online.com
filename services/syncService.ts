@@ -5,7 +5,8 @@ import {
   deleteDoc, 
   onSnapshot, 
   getDocs, 
-  writeBatch 
+  writeBatch,
+  updateDoc
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { 
@@ -30,7 +31,7 @@ export interface CloudWishlistItem {
 }
 
 /**
- * Sets up real-time Firestore synchronization for Cart and Wishlist
+ * Sets up real-time Firestore synchronization for Cart and Wishlist for a specific user UID
  */
 export function setupCloudSync(
   uid: string, 
@@ -40,7 +41,10 @@ export function setupCloudSync(
   const cartRef = collection(db, 'users', uid, 'cart');
   const wishlistRef = collection(db, 'users', uid, 'wishlist');
 
-  // Initial migration check: if cloud is empty and local has items, push local to cloud
+  // Initial load & migration check:
+  // If cloud is completely empty for this user, but local storage has items (e.g. guest items before first login),
+  // migrate local items to this user's cloud collection.
+  // Otherwise, cloud data is the source of truth and overrides local storage.
   (async () => {
     try {
       const cartSnap = await getDocs(cartRef);
@@ -72,7 +76,7 @@ export function setupCloudSync(
         }
       }
     } catch (err) {
-      console.error('Initial cloud migration sync error:', err);
+      console.error('Initial cloud migration error for UID:', uid, err);
     }
   })();
 
@@ -84,9 +88,10 @@ export function setupCloudSync(
       const data = docSnap.data() as CloudCartItem;
       if (data && data.productId) {
         ids.push(data.productId);
-        quantities[data.productId] = data.quantity || 1;
+        quantities[data.productId] = typeof data.quantity === 'number' ? data.quantity : 1;
       }
     });
+    // Save to local cache & update UI
     saveCartProductIds(ids);
     saveCartQuantities(quantities);
     onCartSync(ids, quantities);
@@ -102,7 +107,7 @@ export function setupCloudSync(
       if (data && data.productId) {
         entries.push({
           id: data.productId,
-          addedAt: data.addedAt || Date.now()
+          addedAt: typeof data.addedAt === 'number' ? data.addedAt : Date.now()
         });
       }
     });
@@ -120,8 +125,9 @@ export function setupCloudSync(
   };
 }
 
-// Cloud mutation functions
+// Cloud mutation functions bound strictly to user UID
 export async function cloudAddCartItem(uid: string, productId: string, quantity: number = 1) {
+  if (!uid) return;
   try {
     const ref = doc(db, 'users', uid, 'cart', productId);
     await setDoc(ref, {
@@ -134,7 +140,28 @@ export async function cloudAddCartItem(uid: string, productId: string, quantity:
   }
 }
 
+export async function cloudUpdateCartQuantity(uid: string, productId: string, quantity: number) {
+  if (!uid) return;
+  try {
+    const ref = doc(db, 'users', uid, 'cart', productId);
+    await updateDoc(ref, { quantity });
+  } catch (err) {
+    // If doc doesn't exist yet, setDoc with merge
+    try {
+      const ref = doc(db, 'users', uid, 'cart', productId);
+      await setDoc(ref, {
+        productId,
+        quantity,
+        addedAt: Date.now()
+      }, { merge: true });
+    } catch (innerErr) {
+      console.error('cloudUpdateCartQuantity error:', innerErr);
+    }
+  }
+}
+
 export async function cloudRemoveCartItem(uid: string, productId: string) {
+  if (!uid) return;
   try {
     const ref = doc(db, 'users', uid, 'cart', productId);
     await deleteDoc(ref);
@@ -144,6 +171,7 @@ export async function cloudRemoveCartItem(uid: string, productId: string) {
 }
 
 export async function cloudClearCartCloud(uid: string, currentIds: string[]) {
+  if (!uid) return;
   try {
     const batch = writeBatch(db);
     currentIds.forEach(id => {
@@ -157,18 +185,20 @@ export async function cloudClearCartCloud(uid: string, currentIds: string[]) {
 }
 
 export async function cloudAddWishlistItem(uid: string, productId: string) {
+  if (!uid) return;
   try {
     const ref = doc(db, 'users', uid, 'wishlist', productId);
     await setDoc(ref, {
       productId,
       addedAt: Date.now()
-    });
+    }, { merge: true });
   } catch (err) {
     console.error('cloudAddWishlistItem error:', err);
   }
 }
 
 export async function cloudRemoveWishlistItem(uid: string, productId: string) {
+  if (!uid) return;
   try {
     const ref = doc(db, 'users', uid, 'wishlist', productId);
     await deleteDoc(ref);
@@ -178,6 +208,7 @@ export async function cloudRemoveWishlistItem(uid: string, productId: string) {
 }
 
 export async function cloudClearWishlistCloud(uid: string, currentIds: string[]) {
+  if (!uid) return;
   try {
     const batch = writeBatch(db);
     currentIds.forEach(id => {
