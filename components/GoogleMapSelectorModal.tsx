@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { APIProvider, Map, AdvancedMarker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker, useMap } from '@vis.gl/react-google-maps';
 import { X, Search, MapPin, Check, AlertCircle, Loader2 } from 'lucide-react';
 
 interface GoogleMapSelectorModalProps {
@@ -32,7 +32,6 @@ function MapContent({
   onAddressResolved: (data: any) => void;
 }) {
   const map = useMap();
-  const geocodingLib = useMapsLibrary('geocoding');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [predictions, setPredictions] = useState<any[]>([]);
@@ -85,58 +84,51 @@ function MapContent({
   };
 
   const reverseGeocode = async (lat: number, lng: number) => {
-    if (!geocodingLib) return;
     setIsResolving(true);
     try {
-      const geocoder = new google.maps.Geocoder();
-      const response = await geocoder.geocode({ location: { lat, lng } });
-      if (response.results && response.results[0]) {
-        const result = response.results[0];
-        const formatted = result.formatted_address;
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`, {
+        headers: { 'Accept-Language': 'en' }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const formatted = data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
         setResolvedAddress(formatted);
 
-        let houseName = '';
-        let street = '';
-        let city = '';
-        let district = '';
-        let state = '';
-        let pinCode = '';
-
-        for (const component of result.address_components) {
-          const types = component.types;
-          if (types.includes('subpremise') || types.includes('premise') || types.includes('establishment')) {
-            houseName = component.long_name;
-          } else if (types.includes('route')) {
-            street = component.long_name;
-          } else if (types.includes('sublocality') || types.includes('neighborhood')) {
-            if (!street) street = component.long_name;
-          } else if (types.includes('locality')) {
-            city = component.long_name;
-          } else if (types.includes('administrative_area_level_2')) {
-            district = component.long_name;
-          } else if (types.includes('administrative_area_level_1')) {
-            state = component.long_name;
-          } else if (types.includes('postal_code')) {
-            pinCode = component.long_name;
-          }
-        }
-
-        if (!houseName && street) houseName = street;
+        const addr = data.address || {};
+        const houseName = addr.building || addr.house_number || addr.suburb || addr.neighbourhood || '';
+        const street = addr.road || addr.suburb || addr.neighbourhood || '';
+        const city = addr.city || addr.town || addr.village || addr.hamlet || '';
+        const district = addr.county || addr.state_district || city;
+        const state = addr.state || '';
+        const pinCode = addr.postcode || '';
 
         onAddressResolved({
           latitude: lat,
           longitude: lng,
           formattedAddress: formatted,
-          houseName,
+          houseName: houseName || street || formatted.split(',')[0] || '',
           street: street || formatted.split(',')[0] || '',
-          city,
-          district: district || city,
-          state,
-          pinCode
+          city: city || district || '',
+          district: district || city || '',
+          state: state || '',
+          pinCode: pinCode || ''
         });
       }
     } catch (err) {
-      console.error('Geocoder error:', err);
+      console.error('Nominatim reverse geocode error:', err);
+      const fallback = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      setResolvedAddress(fallback);
+      onAddressResolved({
+        latitude: lat,
+        longitude: lng,
+        formattedAddress: fallback,
+        houseName: '',
+        street: '',
+        city: '',
+        district: '',
+        state: '',
+        pinCode: ''
+      });
     } finally {
       setIsResolving(false);
     }
