@@ -41,6 +41,26 @@ service cloud.firestore {
         && data.lastActiveAt is number;
     }
 
+    function isValidAddress(data) {
+      return data.keys().hasAll(['id', 'fullName', 'phoneNumber', 'houseName', 'street', 'city', 'district', 'state', 'pinCode', 'addressType', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'fullName', 'phoneNumber', 'houseName', 'houseNumber', 'street', 'landmark', 'city', 'district', 'state', 'pinCode', 'addressType', 'isDefault', 'createdAt', 'updatedAt'])
+        && data.id is string && data.id.size() <= 128
+        && data.fullName is string && data.fullName.size() <= 100
+        && data.phoneNumber is string && data.phoneNumber.size() <= 20
+        && data.houseName is string && data.houseName.size() <= 100
+        && (!('houseNumber' in data) || (data.houseNumber is string && data.houseNumber.size() <= 50))
+        && data.street is string && data.street.size() <= 150
+        && (!('landmark' in data) || (data.landmark is string && data.landmark.size() <= 100))
+        && data.city is string && data.city.size() <= 100
+        && data.district is string && data.district.size() <= 100
+        && data.state is string && data.state.size() <= 100
+        && data.pinCode is string && data.pinCode.size() <= 15
+        && data.addressType in ['Home', 'Work', 'Other']
+        && (!('isDefault' in data) || data.isDefault is bool)
+        && data.createdAt is number
+        && data.updatedAt is number;
+    }
+
     // User profile document rules
     match /users/{uid} {
       allow get: if isOwner(uid);
@@ -56,6 +76,14 @@ service cloud.firestore {
       allow create: if isOwner(uid) && isValidId(deviceId) && request.resource.data.id == deviceId && isValidDevice(request.resource.data);
       allow update: if isOwner(uid) && isValidId(deviceId) && request.resource.data.id == resource.data.id && request.resource.data.registeredAt == resource.data.registeredAt && isValidDevice(request.resource.data);
       allow delete: if isOwner(uid) && isValidId(deviceId);
+    }
+
+    // User addresses subcollection rules
+    match /users/{uid}/addresses/{addressId} {
+      allow get, list: if isOwner(uid);
+      allow create: if isOwner(uid) && isValidId(addressId) && request.resource.data.id == addressId && isValidAddress(request.resource.data);
+      allow update: if isOwner(uid) && isValidId(addressId) && request.resource.data.id == resource.data.id && request.resource.data.createdAt == request.resource.data.createdAt && isValidAddress(request.resource.data);
+      allow delete: if isOwner(uid) && isValidId(addressId);
     }
 
     // User subcollections (cart, wishlist, orders, etc.)
