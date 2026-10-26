@@ -31,19 +31,19 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Form fields
+  // Form fields (Required vs Optional)
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [houseName, setHouseName] = useState('');
-  const [houseNumber, setHouseNumber] = useState('');
+  const [houseNumber, setHouseNumber] = useState(''); // Optional
   const [street, setStreet] = useState('');
-  const [landmark, setLandmark] = useState('');
+  const [landmark, setLandmark] = useState(''); // Optional
   const [city, setCity] = useState('');
   const [district, setDistrict] = useState('');
   const [stateName, setStateName] = useState('');
   const [pinCode, setPinCode] = useState('');
   const [addressType, setAddressType] = useState<'Home' | 'Work' | 'Other'>('Home');
-  const [isDefault, setIsDefault] = useState(false);
+  const [isDefault, setIsDefault] = useState(false); // Optional
   const [formError, setFormError] = useState<string | null>(null);
 
   // Delete confirmation state
@@ -102,17 +102,17 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
   const handleOpenEdit = (addr: AddressRecord) => {
     setEditingAddressId(addr.id);
-    setFullName(addr.fullName);
-    setPhoneNumber(addr.phoneNumber);
-    setHouseName(addr.houseName);
+    setFullName(addr.fullName || '');
+    setPhoneNumber(addr.phoneNumber || '');
+    setHouseName(addr.houseName || '');
     setHouseNumber(addr.houseNumber || '');
-    setStreet(addr.street);
+    setStreet(addr.street || '');
     setLandmark(addr.landmark || '');
-    setCity(addr.city);
-    setDistrict(addr.district);
-    setStateName(addr.state);
-    setPinCode(addr.pinCode);
-    setAddressType(addr.addressType);
+    setCity(addr.city || '');
+    setDistrict(addr.district || '');
+    setStateName(addr.state || '');
+    setPinCode(addr.pinCode || '');
+    setAddressType(addr.addressType || 'Home');
     setIsDefault(addr.isDefault || false);
     setFormError(null);
     setShowFormModal(true);
@@ -120,23 +120,33 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser?.uid) return;
+    if (!currentUser?.uid || isSaving) return;
 
-    // Validation
-    if (!fullName.trim() || !phoneNumber.trim() || !houseName.trim() || !street.trim() || !city.trim() || !district.trim() || !stateName.trim() || !pinCode.trim()) {
-      setFormError('Please fill in all required fields.');
+    // Trim required fields
+    const fName = fullName.trim();
+    const phone = phoneNumber.trim();
+    const hName = houseName.trim();
+    const str = street.trim();
+    const cty = city.trim();
+    const dist = district.trim();
+    const st = stateName.trim();
+    const pin = pinCode.trim();
+
+    // Validation for mandatory fields only
+    if (!fName || !phone || !hName || !str || !cty || !dist || !st || !pin) {
+      setFormError('Please fill in all required fields marked with *.');
       return;
     }
 
     // Phone validation (10 digits Indian mobile)
-    const phoneClean = phoneNumber.replace(/\D/g, '');
+    const phoneClean = phone.replace(/\D/g, '');
     if (phoneClean.length < 10) {
       setFormError('Please enter a valid 10-digit mobile number.');
       return;
     }
 
     // PIN code validation (6 digits)
-    const pinClean = pinCode.replace(/\D/g, '');
+    const pinClean = pin.replace(/\D/g, '');
     if (pinClean.length !== 6) {
       setFormError('Please enter a valid 6-digit PIN code.');
       return;
@@ -150,17 +160,17 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
       const addressId = editingAddressId || 'addr_' + Math.random().toString(36).substring(2, 10) + '_' + now;
       const record: AddressRecord = {
         id: addressId,
-        fullName: fullName.trim(),
-        phoneNumber: phoneNumber.trim(),
-        houseName: houseName.trim(),
-        houseNumber: houseNumber.trim() || undefined,
-        street: street.trim(),
-        landmark: landmark.trim() || undefined,
-        city: city.trim(),
-        district: district.trim(),
-        state: stateName.trim(),
-        pinCode: pinCode.trim(),
-        addressType,
+        fullName: fName,
+        phoneNumber: phone,
+        houseName: hName,
+        houseNumber: houseNumber.trim() || '',
+        street: str,
+        landmark: landmark.trim() || '',
+        city: cty,
+        district: dist,
+        state: st,
+        pinCode: pin,
+        addressType: addressType || 'Home',
         isDefault: isDefault || addresses.length === 0,
         createdAt: editingAddressId ? (addresses.find(a => a.id === editingAddressId)?.createdAt || now) : now,
         updatedAt: now
@@ -315,7 +325,7 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
-                            {addr.addressType}
+                            {addr.addressType || 'Home'}
                           </span>
                           {addr.isDefault && (
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 uppercase">
@@ -429,7 +439,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Full Name *</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="text"
                     value={fullName}
@@ -441,7 +453,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Phone Number *</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="tel"
                     value={phoneNumber}
@@ -455,7 +469,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">House Name *</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    House Name <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="text"
                     value={houseName}
@@ -467,7 +483,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">House / Building Number (Optional)</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    House / Building Number (Optional)
+                  </label>
                   <input 
                     type="text"
                     value={houseNumber}
@@ -479,7 +497,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Street / Locality *</label>
+                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  Street / Locality <span className="text-red-500">*</span>
+                </label>
                 <input 
                   type="text"
                   value={street}
@@ -491,7 +511,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Landmark (Optional)</label>
+                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                  Landmark (Optional)
+                </label>
                 <input 
                   type="text"
                   value={landmark}
@@ -503,7 +525,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">City / Town *</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    City / Town <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="text"
                     value={city}
@@ -515,7 +539,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">District *</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    District <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="text"
                     value={district}
@@ -527,7 +553,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">State *</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    State <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="text"
                     value={stateName}
@@ -541,7 +569,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">PIN Code *</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    PIN Code <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="text"
                     value={pinCode}
@@ -554,7 +584,9 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Address Type</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Address Type <span className="text-red-500">*</span>
+                  </label>
                   <div className="flex gap-2">
                     {(['Home', 'Work', 'Other'] as const).map(type => (
                       <button
@@ -582,7 +614,7 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
                     onChange={(e) => setIsDefault(e.target.checked)}
                     className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                   />
-                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Set as default delivery address</span>
+                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Set as default delivery address (Optional)</span>
                 </label>
               </div>
 
