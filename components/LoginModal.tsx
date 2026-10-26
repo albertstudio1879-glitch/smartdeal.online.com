@@ -46,7 +46,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       if (onLoginSuccess) onLoginSuccess(res.user);
       setTimeout(() => {
         onClose();
-      }, 1200);
+      }, 5000);
     } else {
       setErrorMessage(res.message || 'Failed to sign in with Google. Please check your network or Firebase Console configuration.');
     }

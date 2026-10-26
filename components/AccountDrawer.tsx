@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Theme } from '../types';
 import { LANGUAGES, Language, getTranslation } from '../utils/translations';
-import { UserAccount, getLocalUser, initAuthListener, logoutUser } from '../services/authService';
+import { UserAccount, getLocalUser, initAuthListener, logoutUser, saveLocalUser } from '../services/authService';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
 import { 
   X, Moon, Sun, Monitor, Languages, ShoppingCart, 
   HelpCircle, Info, Scale, ShieldCheck, ChevronRight,
-  ExternalLink, Mail, Check, Heart, Phone, LogIn, LogOut
+  ExternalLink, Mail, Check, Heart, Phone, LogIn, LogOut,
+  User, Edit3
 } from 'lucide-react';
 
 interface AccountDrawerProps {
@@ -42,6 +45,49 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getLocalUser());
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [emailId, setEmailId] = useState('');
+  const [profileSavedMsg, setProfileSavedMsg] = useState('');
+
+  useEffect(() => {
+    if (currentUser) {
+      const parts = (currentUser.displayName || '').split(' ');
+      setFirstName(parts[0] || '');
+      setLastName(parts.slice(1).join(' ') || '');
+      setEmailId(currentUser.email || '');
+      setMobileNumber((currentUser as any).phoneNumber || '+918590557117');
+    }
+  }, [currentUser]);
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+    try {
+      const updatedName = `${firstName} ${lastName}`.trim();
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userDocRef, {
+        displayName: updatedName,
+        email: emailId,
+        phoneNumber: mobileNumber,
+        updatedAt: Date.now()
+      });
+      const updatedUser = {
+        ...currentUser,
+        displayName: updatedName,
+        email: emailId,
+        phoneNumber: mobileNumber
+      };
+      saveLocalUser(updatedUser);
+      setCurrentUser(updatedUser);
+      setProfileSavedMsg('Profile updated successfully!');
+      setTimeout(() => setProfileSavedMsg(''), 3000);
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+    }
+  };
 
   useEffect(() => {
     const unsub = initAuthListener((u) => {
@@ -170,6 +216,24 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
                 </div>
               </button>
             </div>
+
+            {/* My Profile Button */}
+            <button
+              type="button"
+              onClick={() => setShowProfileModal(true)}
+              className="w-full p-3.5 bg-blue-50 dark:bg-slate-800 rounded-xl border border-blue-200 dark:border-slate-700 flex items-center justify-between hover:border-blue-400 transition-colors group cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+                  {currentUser?.displayName ? currentUser.displayName.charAt(0).toUpperCase() : <User className="w-5 h-5" />}
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold text-gray-800 dark:text-gray-200">My Profile</div>
+                  <div className="text-[11px] text-gray-500 dark:text-gray-400">View & edit name, phone & email</div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+            </button>
 
             {/* Language & Theme Settings */}
             <div className="bg-gray-50 dark:bg-slate-800/60 rounded-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
@@ -324,27 +388,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
               </button>
             </div>
 
-            {/* Admin Management Panel */}
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800/50">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-xs font-bold text-purple-900 dark:text-purple-200">Admin Control Panel</h4>
-                  <p className="text-[11px] text-purple-700 dark:text-purple-300">
-                    Add products, manage inventory & Google Sheets
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose();
-                    onOpenAdmin();
-                  }}
-                  className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-transform active:scale-95 shadow-sm"
-                >
-                  Open Panel
-                </button>
-              </div>
-            </div>
+
 
             {/* Connect with us links */}
             <div className="pt-2 text-center">
@@ -400,6 +444,116 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
 
         </div>
       </div>
+
+      {/* My Profile Modal */}
+      {showProfileModal && (
+        <div className="fixed inset-0 z-[95] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-100 dark:border-slate-800 flex flex-col">
+            
+            {/* Top Blue Banner */}
+            <div className="bg-blue-600 text-white p-6 relative flex flex-col items-center justify-center">
+              <button
+                type="button"
+                onClick={() => setShowProfileModal(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="relative w-24 h-24 rounded-full bg-white dark:bg-slate-800 shadow-lg border-4 border-white/20 flex items-center justify-center text-gray-800 dark:text-white text-3xl font-bold overflow-hidden">
+                {currentUser?.avatar ? (
+                  <img src={currentUser.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{currentUser?.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U'}</span>
+                )}
+                <div className="absolute bottom-0 right-0 bg-white dark:bg-slate-700 p-1.5 rounded-full shadow-md text-blue-600 dark:text-blue-400 border border-gray-200 dark:border-slate-600">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+              </div>
+              <h3 className="text-base font-bold mt-2">My Profile</h3>
+            </div>
+
+            {/* Form Body */}
+            <form onSubmit={handleSaveProfile} className="p-6 space-y-5 flex-1 overflow-y-auto">
+              {profileSavedMsg && (
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl text-center">
+                  {profileSavedMsg}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">First Name</label>
+                  <input 
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-gray-50 dark:bg-slate-800 border-b border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-600 transition-colors"
+                    placeholder="Enter first name"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Last Name</label>
+                  <input 
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-gray-50 dark:bg-slate-800 border-b border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:border-blue-600 transition-colors"
+                    placeholder="Enter last name"
+                  />
+                </div>
+
+                <div className="pt-2 text-center">
+                  <button
+                    type="submit"
+                    className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-transform active:scale-95 cursor-pointer uppercase tracking-wider"
+                  >
+                    Submit
+                  </button>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100 dark:border-slate-800 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Mobile Number</div>
+                      <div className="text-sm font-bold text-gray-900 dark:text-white mt-0.5">{mobileNumber}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const num = prompt('Enter new mobile number:', mobileNumber);
+                        if (num) setMobileNumber(num);
+                      }}
+                      className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                    >
+                      Update
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Email ID</div>
+                      <div className="text-sm font-bold text-gray-900 dark:text-white mt-0.5">{emailId}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const em = prompt('Enter new email ID:', emailId);
+                        if (em) setEmailId(em);
+                      }}
+                      className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                    >
+                      Update
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };
