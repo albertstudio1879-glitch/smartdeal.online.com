@@ -132,6 +132,7 @@ const AppContent: React.FC = () => {
 
   // User Authentication State for Cloud Sync
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   useEffect(() => {
     const unsubAuth = initAuthListener((u) => {
@@ -143,11 +144,13 @@ const AppContent: React.FC = () => {
         }
         return u;
       });
+      setIsAuthLoading(false);
     });
     return () => unsubAuth();
   }, []);
 
   useEffect(() => {
+    if (isAuthLoading) return;
     if (!currentUser || !currentUser.uid) {
       setCartProductIds(getCartProductIds(null));
       setWishlistProductIds(getWishlistProductIds(null));
@@ -165,7 +168,7 @@ const AppContent: React.FC = () => {
       }
     );
     return () => unsubSync();
-  }, [currentUser]);
+  }, [isAuthLoading, currentUser?.uid]);
 
   // Apply Theme Effect
   useEffect(() => {
@@ -228,8 +231,10 @@ const AppContent: React.FC = () => {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (!isAuthLoading) {
+      loadData();
+    }
+  }, [isAuthLoading]);
 
   // Sync bottom tab when sidebar closes
   useEffect(() => {
@@ -529,7 +534,7 @@ const AppContent: React.FC = () => {
   const productsBeforeBanner = showBestOffersBanner ? filteredProducts.slice(0, 4) : filteredProducts;
   const productsAfterBanner = showBestOffersBanner ? filteredProducts.slice(4) : [];
 
-  if (isLoading) {
+  if (isAuthLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center flex-col transition-colors duration-300">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mb-4"></div>
