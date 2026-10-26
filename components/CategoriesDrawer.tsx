@@ -248,7 +248,7 @@ export const CategoriesDrawer: React.FC<CategoriesDrawerProps> = ({
               <div className="flex h-full">
                 
                 {/* Left Column: Categories List */}
-                <div className="w-28 sm:w-44 md:w-52 border-r border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-850 overflow-y-auto flex-shrink-0 select-none">
+                <div className="w-28 sm:w-44 md:w-52 border-r border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-y-auto flex-shrink-0 select-none">
                   {filteredCategories.map((cat) => {
                     const isSelected = selectedCat === cat.id;
                     const count = getProductsForCategory(cat.id).length;

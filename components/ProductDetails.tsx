@@ -561,7 +561,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                className={`flex items-center justify-center gap-2 py-3.5 px-4 sm:px-6 rounded-xl border font-bold text-sm transition-all active:scale-95 ${
                  isInCart
                    ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-600 dark:text-blue-400'
-                   : 'bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-750'
+                   : 'bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700'
                }`}
              >
                <ShoppingCart className="w-5 h-5" />

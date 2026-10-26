@@ -50,6 +50,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showManageDevicesModal, setShowManageDevicesModal] = useState(false);
   const [showSavedAddressModal, setShowSavedAddressModal] = useState(false);
+  const [showGoogleSessionModal, setShowGoogleSessionModal] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
@@ -194,7 +195,17 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             
             {/* Google Login / Account Card */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-4 border border-blue-200 dark:border-blue-800/60 flex items-center justify-between">
+            <div 
+              onClick={() => {
+                if (currentUser) {
+                  setShowGoogleSessionModal(true);
+                } else {
+                  onClose();
+                  onOpenLogin();
+                }
+              }}
+              className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-4 border border-blue-200 dark:border-blue-800/60 flex items-center justify-between cursor-pointer hover:border-blue-400 transition-colors"
+            >
               <div>
                 <h4 className="text-xs font-bold text-blue-900 dark:text-blue-200">
                   {currentUser ? 'Google Session Active' : 'Sign in with Google'}
@@ -380,7 +391,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
                 </button>
 
                 {showLanguagePicker && (
-                  <div className="bg-white dark:bg-slate-850 p-2 border-t border-gray-100 dark:border-slate-700 grid grid-cols-2 gap-1.5 animate-in slide-in-from-top-2 duration-150">
+                  <div className="bg-white dark:bg-slate-900 p-2 border-t border-gray-100 dark:border-slate-700 grid grid-cols-2 gap-1.5 animate-in slide-in-from-top-2 duration-150">
                     {LANGUAGES.map((lang) => (
                       <button
                         key={lang.code}
@@ -423,7 +434,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
                 </button>
 
                 {showThemePicker && (
-                  <div className="bg-white dark:bg-slate-850 p-2 border-t border-gray-100 dark:border-slate-700 flex gap-2 animate-in slide-in-from-top-2 duration-150">
+                  <div className="bg-white dark:bg-slate-900 p-2 border-t border-gray-100 dark:border-slate-700 flex gap-2 animate-in slide-in-from-top-2 duration-150">
                     {[
                       { id: 'light', label: 'Light', icon: Sun },
                       { id: 'dark', label: 'Dark', icon: Moon },
@@ -654,11 +665,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
                                 title={`${c.name} background`}
                               >
                                 {firstLetter}
-                                {isSelected && (
-                                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
-                                    <Check className="w-2.5 h-2.5 text-white" />
-                                  </div>
-                                )}
+                                
                               </button>
                             );
                           })}
@@ -815,6 +822,98 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
           </div>
         </div>
       )}
+      {/* Google Session Profile Modal */}
+      {showGoogleSessionModal && (
+        <div className="fixed inset-0 z-[105] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-slate-800 flex flex-col text-white">
+            
+            {/* Header */}
+            <div className="bg-blue-600 text-white p-5 relative flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30 text-white">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold leading-tight">My Account Profile</h3>
+                <p className="text-[11px] text-blue-100">Smart Deal Online • Google Sign-In</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGoogleSessionModal(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-white/20 text-white transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 flex flex-col items-center text-center space-y-4">
+              
+              {/* Avatar with badge */}
+              <div className="relative w-24 h-24 rounded-full bg-slate-800 shadow-xl border-4 border-blue-600/40 flex items-center justify-center text-white text-3xl font-bold overflow-hidden mt-2">
+                {currentUser?.avatar ? (
+                  <img src={currentUser.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : currentUser?.displayName ? (
+                  currentUser.displayName.charAt(0).toUpperCase()
+                ) : (
+                  <User className="w-10 h-10" />
+                )}
+                
+              </div>
+
+              {/* Name & Email */}
+              <div>
+                <h4 className="text-lg font-black text-white tracking-tight">
+                  {currentUser?.displayName || 'Verified User'}
+                </h4>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {currentUser?.email || 'muhammedmanas2a@gmail.com'}
+                </p>
+              </div>
+
+              {/* Google Authentication Active Pill */}
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/60 border border-emerald-800 text-emerald-400 rounded-full text-xs font-bold">
+                <Check className="w-3.5 h-3.5" />
+                <span>Google Authentication Active</span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="w-full pt-4 space-y-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowGoogleSessionModal(false);
+                    onClose();
+                  }}
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-transform active:scale-95 cursor-pointer uppercase tracking-wider"
+                >
+                  Continue Shopping
+                </button>
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await logoutUser();
+                    setCurrentUser(null);
+                    setShowGoogleSessionModal(false);
+                  }}
+                  className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-red-400 font-bold text-xs rounded-xl border border-slate-700 transition-transform active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+
+            </div>
+
+            {/* Footer */}
+            <div className="p-3 bg-slate-950 border-t border-slate-800 text-center text-[10px] text-slate-500">
+              Smart Deal Online • Secure Google Authentication
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {/* Manage Devices Modal / Page */}
       <ManageDevicesModal 
         isOpen={showManageDevicesModal} 

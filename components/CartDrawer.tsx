@@ -921,7 +921,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         <button
                           type="button"
                           onClick={() => onRemoveFromCart(product.id)}
-                          className="py-2.5 px-3 flex items-center justify-center gap-1.5 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-white dark:hover:bg-slate-750 transition-colors cursor-pointer"
+                          className="py-2.5 px-3 flex items-center justify-center gap-1.5 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                           <span>Remove</span>
@@ -931,7 +931,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         <button
                           type="button"
                           onClick={() => handleBuySafe(product)}
-                          className="py-2.5 px-3 flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold text-gray-900 dark:text-white hover:text-yellow-600 hover:bg-white dark:hover:bg-slate-750 transition-colors cursor-pointer"
+                          className="py-2.5 px-3 flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold text-gray-900 dark:text-white hover:text-yellow-600 hover:bg-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
                         >
                           <Zap className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                           <span>Buy this now</span>

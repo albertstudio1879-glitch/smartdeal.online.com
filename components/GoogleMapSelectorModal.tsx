@@ -262,7 +262,7 @@ export const GoogleMapSelectorModal: React.FC<GoogleMapSelectorModalProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleSelectPrediction(pred)}
-                    className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-800 text-xs text-gray-700 dark:text-gray-300 border-b border-gray-50 dark:border-slate-850 flex items-center gap-2 cursor-pointer"
+                    className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-800 text-xs text-gray-700 dark:text-gray-300 border-b border-gray-50 dark:border-slate-800 flex items-center gap-2 cursor-pointer"
                   >
                     <MapPin className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
                     <span className="truncate">{pred.display_name}</span>

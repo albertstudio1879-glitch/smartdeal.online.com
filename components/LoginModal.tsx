@@ -105,9 +105,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     {currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U'}
                   </div>
                 )}
-                <div className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center text-white">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                </div>
+                
               </div>
 
               <div>
@@ -172,7 +170,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full py-3.5 px-4 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-750 text-gray-800 dark:text-gray-100 font-bold text-sm rounded-xl shadow-md border border-gray-200 dark:border-slate-700 transition-all active:scale-95 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
+                className="w-full py-3.5 px-4 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-100 font-bold text-sm rounded-xl shadow-md border border-gray-200 dark:border-slate-700 transition-all active:scale-95 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? (
                   <>
