@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Theme } from '../types';
 import { LANGUAGES, Language, getTranslation } from '../utils/translations';
 import { UserAccount, getLocalUser, initAuthListener, logoutUser, saveLocalUser } from '../services/authService';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { 
   X, Moon, Sun, Monitor, Languages, ShoppingCart, 
