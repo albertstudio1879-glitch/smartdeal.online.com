@@ -44,72 +44,7 @@ export function setupCloudSync(
   const cartRef = collection(db, 'users', uid, 'cart');
   const wishlistRef = collection(db, 'users', uid, 'wishlist');
 
-  // Initial load & migration check:
-  // On login, merge any guest localStorage items into Firestore once (union by productId, keep the higher qty), then clear the local copy.
-  (async () => {
-    try {
-      const migrationKey = `smart_deal_migrated_${uid}`;
-      const alreadyMigrated = localStorage.getItem(migrationKey) === 'true';
-
-      if (!alreadyMigrated) {
-        const localCart = getCartProductIds(null);
-        const localQuantities = getCartQuantities(null);
-        const localWishlist = getWishlistEntries(null);
-
-        if (localCart.length > 0 || localWishlist.length > 0) {
-          const cartSnap = await getDocs(cartRef);
-          const wishlistSnap = await getDocs(wishlistRef);
-
-          const existingCartMap = new Map<string, number>();
-          cartSnap.forEach(d => {
-            const data = d.data();
-            existingCartMap.set(data.productId, data.qty ?? data.quantity ?? 1);
-          });
-
-          const existingWishlistSet = new Set<string>();
-          wishlistSnap.forEach(d => {
-            const data = d.data();
-            existingWishlistSet.add(data.productId);
-          });
-
-          const batch = writeBatch(db);
-
-          localCart.forEach(id => {
-            const guestQty = localQuantities[id] || 1;
-            const existingQty = existingCartMap.get(id);
-            const finalQty = existingQty !== undefined ? Math.max(existingQty, guestQty) : guestQty;
-            const itemRef = doc(cartRef, id);
-            batch.set(itemRef, {
-              productId: id,
-              qty: finalQty,
-              updatedAt: Date.now()
-            }, { merge: true });
-          });
-
-          localWishlist.forEach(w => {
-            if (!existingWishlistSet.has(w.id)) {
-              const itemRef = doc(wishlistRef, w.id);
-              batch.set(itemRef, {
-                productId: w.id,
-                addedAt: w.addedAt
-              }, { merge: true });
-            }
-          });
-
-          await batch.commit();
-
-          // Clear guest localStorage copy
-          saveCartProductIds([], null);
-          saveCartQuantities({}, null);
-          saveWishlistEntries([], null);
-        }
-        localStorage.setItem(migrationKey, 'true');
-      }
-    } catch (err) {
-      console.error('Initial cloud migration error for UID:', uid, err);
-    }
-  })();
-
+  // Firestore is the sole source of truth for authenticated users
   // Real-time listener for Cart
   const unsubCart = onSnapshot(cartRef, (snapshot) => {
     const ids: string[] = [];

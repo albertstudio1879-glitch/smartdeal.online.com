@@ -150,6 +150,14 @@ export async function logoutUser(): Promise<void> {
     // ignore
   }
   saveLocalUser(null);
+  try {
+    localStorage.removeItem('smart_deal_cart_guest');
+    localStorage.removeItem('smart_deal_cart_quantities_guest');
+    localStorage.removeItem('smart_deal_guest_wishlist_v2');
+    localStorage.removeItem('smart_deal_guest_wishlist');
+  } catch {
+    // ignore
+  }
 }
 
 /**
