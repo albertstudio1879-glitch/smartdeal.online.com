@@ -1,0 +1,96 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account created and maintained via passwordless OTP verification",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique user ID matching Firebase Auth UID"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "User mobile phone number with country code"
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address if authenticated via email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User display name or formatted identifier"
+        },
+        "avatar": {
+          "type": "string",
+          "description": "User avatar URL or initial letter"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["customer", "admin"],
+          "description": "Access control role"
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "Epoch timestamp in ms when user first signed up"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Epoch timestamp in ms when user profile was last updated"
+        }
+      },
+      "required": ["id", "role", "createdAt"]
+    },
+    "OtpRecord": {
+      "title": "OtpRecord",
+      "description": "Tracks passwordless OTP verification sessions with expiry and attempt limits",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique verification session ID"
+        },
+        "identifier": {
+          "type": "string",
+          "description": "Phone number or email address receiving OTP"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["phone", "email"],
+          "description": "Verification channel"
+        },
+        "otpHash": {
+          "type": "string",
+          "description": "SHA-256 hash of the generated 6-digit OTP code"
+        },
+        "expiresAt": {
+          "type": "number",
+          "description": "Epoch timestamp in ms when OTP expires (5 minutes from creation)"
+        },
+        "attempts": {
+          "type": "number",
+          "description": "Number of failed verification attempts"
+        },
+        "verified": {
+          "type": "boolean",
+          "description": "Whether OTP has already been verified and consumed"
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "Epoch timestamp in ms when OTP session was initiated"
+        }
+      },
+      "required": ["id", "identifier", "type", "expiresAt", "attempts", "verified", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile collection containing account details and role"
+    },
+    "/otp_verifications/{otpId}": {
+      "schema": "OtpRecord",
+      "description": "Temporary OTP verification sessions for email and mobile login"
+    }
+  }
+}

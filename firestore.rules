@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User profile collection
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      allow create: if isOwner(userId) 
+        && request.resource.data.id == userId
+        && request.resource.data.role in ['customer', 'admin']
+        && request.resource.data.createdAt is number;
+
+      allow update: if isOwner(userId)
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'phoneNumber', 'email', 'avatar', 'updatedAt']);
+
+      allow delete: if false;
+    }
+
+    // Passwordless OTP verification tracking
+    match /otp_verifications/{otpId} {
+      allow get: if true;
+      allow list: if false;
+
+      allow create: if isValidId(otpId)
+        && request.resource.data.id == otpId
+        && request.resource.data.type in ['phone', 'email']
+        && request.resource.data.identifier is string
+        && request.resource.data.identifier.size() <= 100
+        && request.resource.data.expiresAt is number
+        && request.resource.data.attempts is number
+        && request.resource.data.attempts >= 0
+        && request.resource.data.verified == false
+        && request.resource.data.createdAt is number;
+
+      allow update: if isValidId(otpId)
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.identifier == resource.data.identifier
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attempts', 'verified', 'verifiedAt']);
+
+      allow delete: if false;
+    }
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

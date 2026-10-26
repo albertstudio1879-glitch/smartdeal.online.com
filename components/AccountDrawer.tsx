@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Theme } from '../types';
 import { LANGUAGES, Language, getTranslation } from '../utils/translations';
+import { UserAccount, getLocalUser, initAuthListener, logoutUser } from '../services/authService';
 import { 
   X, Moon, Sun, Monitor, Languages, ShoppingCart, 
   HelpCircle, Info, Scale, ShieldCheck, ChevronRight,
-  ExternalLink, Mail, Check, Heart
+  ExternalLink, Mail, Check, Heart, Phone, LogIn, LogOut
 } from 'lucide-react';
 
 interface AccountDrawerProps {
@@ -15,6 +16,7 @@ interface AccountDrawerProps {
   onOpenCart: () => void;
   onOpenWishlist?: () => void;
   onOpenAdmin: () => void;
+  onOpenLogin: () => void;
   currentLang: Language;
   onLanguageChange: (lang: Language) => void;
   currentTheme: Theme;
@@ -30,6 +32,7 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
   onOpenCart,
   onOpenWishlist,
   onOpenAdmin,
+  onOpenLogin,
   currentLang,
   onLanguageChange,
   currentTheme,
@@ -38,6 +41,14 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
 }) => {
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
   const [showThemePicker, setShowThemePicker] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getLocalUser());
+
+  useEffect(() => {
+    const unsub = initAuthListener((u) => {
+      setCurrentUser(u);
+    });
+    return () => unsub();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -57,23 +68,27 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
           {/* Header */}
           <div className="p-5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 text-white shadow-inner">
-                <svg className="w-7 h-7 fill-current" viewBox="0 0 24 24">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                </svg>
+              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 text-white shadow-inner font-bold text-lg">
+                {currentUser?.displayName ? currentUser.displayName.charAt(0).toUpperCase() : (
+                  <svg className="w-7 h-7 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                  </svg>
+                )}
               </div>
-              <div>
-                <h2 className="text-base font-bold leading-tight">
-                  Smart Deal Member
+              <div className="min-w-0">
+                <h2 className="text-base font-bold leading-tight truncate">
+                  {currentUser?.displayName || 'Smart Deal Member'}
                 </h2>
-                <p className="text-xs text-blue-100">Smart Deal Online Affiliate Portal</p>
+                <p className="text-xs text-blue-100 truncate">
+                  {currentUser?.phoneNumber || currentUser?.email || 'Passwordless OTP Login'}
+                </p>
               </div>
             </div>
 
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-full hover:bg-white/20 transition-colors text-white"
+              className="p-1.5 rounded-full hover:bg-white/20 transition-colors text-white flex-shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
@@ -82,6 +97,43 @@ export const AccountDrawer: React.FC<AccountDrawerProps> = ({
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             
+            {/* Passwordless Login / Account Card */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-4 border border-blue-200 dark:border-blue-800/60 flex items-center justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-blue-900 dark:text-blue-200">
+                  {currentUser ? 'Passwordless Session Active' : 'Login / Signup with OTP'}
+                </h4>
+                <p className="text-[11px] text-blue-700 dark:text-blue-300">
+                  {currentUser ? (currentUser.phoneNumber || currentUser.email || 'Verified User') : 'Fast SMS & Email OTP (No Password)'}
+                </p>
+              </div>
+              {currentUser ? (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await logoutUser();
+                    setCurrentUser(null);
+                  }}
+                  className="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-transform active:scale-95 shadow-xs flex items-center gap-1 cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Logout</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenLogin();
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg transition-transform active:scale-95 shadow-xs flex items-center gap-1.5 cursor-pointer"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Login / OTP</span>
+                </button>
+              )}
+            </div>
+
             {/* Quick Stats Card */}
             <div className="grid grid-cols-2 gap-3">
               <button

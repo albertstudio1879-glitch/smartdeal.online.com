@@ -13,6 +13,7 @@ import { ShareModal } from './components/ShareModal';
 import { BottomNav, BottomNavTab } from './components/BottomNav';
 import { CartDrawer } from './components/CartDrawer';
 import { AccountDrawer } from './components/AccountDrawer';
+import { LoginModal } from './components/LoginModal';
 import { Product, Category, Theme } from './types';
 import { 
   getProducts, 
@@ -100,6 +101,7 @@ const AppContent: React.FC = () => {
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAllCategoriesOpen, setIsAllCategoriesOpen] = useState(false);
   
   // Filtering & Sorting State
@@ -639,11 +641,21 @@ const AppContent: React.FC = () => {
           handleCloseDrawers();
           setIsAdminOpen(true);
         }}
+        onOpenLogin={() => {
+          handleCloseDrawers();
+          setIsLoginOpen(true);
+        }}
         currentLang={currentLang}
         onLanguageChange={setCurrentLang}
         currentTheme={theme}
         onThemeChange={setTheme}
         onOpenInfoPage={(page) => handleOpenInfoPage(page, false)}
+      />
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
       />
 
       {/* Overlays */}
