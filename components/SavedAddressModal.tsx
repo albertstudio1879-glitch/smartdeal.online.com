@@ -190,14 +190,14 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
         setIsLocating(false);
         console.error('Geolocation error:', error);
         if (error.code === error.PERMISSION_DENIED) {
-          setFormError('Location permission denied. Please enter your address manually.');
+          setFormError('Location permission denied. Please allow location access in your browser or enter your address manually.');
         } else if (error.code === error.TIMEOUT) {
-          setFormError('Location request timed out. Please try again or enter manually.');
+          setFormError("We couldn't detect your location in time. Please check that Location/GPS is enabled, allow browser location permission, and try again.");
         } else {
           setFormError('Unable to retrieve your location. Please enter manually.');
         }
       },
-      { timeout: 10000, enableHighAccuracy: true }
+      { timeout: 25000, enableHighAccuracy: false, maximumAge: 60000 }
     );
   };
 
@@ -595,8 +595,17 @@ export const SavedAddressModal: React.FC<SavedAddressModalProps> = ({
               )}
 
               {formError && (
-                <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 text-red-700 text-xs font-semibold rounded-xl text-center">
-                  {formError}
+                <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 text-red-700 text-xs font-semibold rounded-xl flex items-center justify-between gap-2">
+                  <span>{formError}</span>
+                  {formError.includes("detect your location in time") && (
+                    <button
+                      type="button"
+                      onClick={handleUseCurrentLocation}
+                      className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-xs cursor-pointer flex-shrink-0"
+                    >
+                      Try Again
+                    </button>
+                  )}
                 </div>
               )}
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { APIProvider, Map, AdvancedMarker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
-import { X, Search, MapPin, Check, AlertCircle, RefreshCw } from 'lucide-react';
+import { X, Search, MapPin, Check, AlertCircle, Loader2 } from 'lucide-react';
 
 interface GoogleMapSelectorModalProps {
   isOpen: boolean;
@@ -20,7 +20,7 @@ interface GoogleMapSelectorModalProps {
   initialLng?: number;
 }
 
-const DEFAULT_CENTER = { lat: 10.8505, lng: 76.2711 }; // Default to Kerala, India center or user location
+const DEFAULT_CENTER = { lat: 10.8505, lng: 76.2711 }; // Kerala, India default
 
 function MapContent({ 
   selectedPos, 
@@ -32,16 +32,57 @@ function MapContent({
   onAddressResolved: (data: any) => void;
 }) {
   const map = useMap();
+  const placesLib = useMapsLibrary('places');
   const geocodingLib = useMapsLibrary('geocoding');
+
   const [searchQuery, setSearchQuery] = useState('');
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
   const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
+
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesService = useRef<google.maps.places.PlacesService | null>(null);
+
+  useEffect(() => {
+    if (placesLib && !autocompleteService.current) {
+      autocompleteService.current = new google.maps.places.AutocompleteService();
+    }
+    if (placesLib && map && !placesService.current) {
+      placesService.current = new google.maps.places.PlacesService(map);
+    }
+  }, [placesLib, map]);
 
   useEffect(() => {
     if (map && selectedPos) {
       map.panTo(selectedPos);
     }
   }, [selectedPos, map]);
+
+  useEffect(() => {
+    if (!searchQuery.trim() || !autocompleteService.current) {
+      setPredictions([]);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      autocompleteService.current?.getPlacePredictions(
+        { 
+          input: searchQuery.trim(),
+          componentRestrictions: { country: ['in'] } // Prioritize India
+        }, 
+        (results, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            setPredictions(results);
+          } else {
+            setPredictions([]);
+          }
+        }
+      );
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleMapClick = async (e: google.maps.MapMouseEvent) => {
     if (!e.latLng) return;
@@ -110,42 +151,101 @@ function MapContent({
     }
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim() || !geocodingLib || !map) return;
-    try {
-      const geocoder = new google.maps.Geocoder();
-      const response = await geocoder.geocode({ address: searchQuery.trim() });
-      if (response.results && response.results[0]) {
-        const place = response.results[0];
-        const loc = place.geometry.location;
-        const lat = loc.lat();
-        const lng = loc.lng();
-        setSelectedPos({ lat, lng });
-        map.panTo({ lat, lng });
-        map.setZoom(16);
-        await reverseGeocode(lat, lng);
+  const handleSelectPrediction = (placeId: string, description: string) => {
+    setSearchQuery(description);
+    setPredictions([]);
+    if (!placesService.current || !map) return;
+
+    placesService.current.getDetails(
+      { placeId, fields: ['geometry', 'formatted_address', 'address_components'] },
+      (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && place && place.geometry && place.geometry.location) {
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+          setSelectedPos({ lat, lng });
+          map.panTo({ lat, lng });
+          map.setZoom(16);
+
+          const formatted = place.formatted_address || description;
+          setResolvedAddress(formatted);
+
+          let houseName = '';
+          let street = '';
+          let city = '';
+          let district = '';
+          let state = '';
+          let pinCode = '';
+
+          if (place.address_components) {
+            for (const component of place.address_components) {
+              const types = component.types;
+              if (types.includes('subpremise') || types.includes('premise') || types.includes('establishment')) {
+                houseName = component.long_name;
+              } else if (types.includes('route')) {
+                street = component.long_name;
+              } else if (types.includes('sublocality') || types.includes('neighborhood')) {
+                if (!street) street = component.long_name;
+              } else if (types.includes('locality')) {
+                city = component.long_name;
+              } else if (types.includes('administrative_area_level_2')) {
+                district = component.long_name;
+              } else if (types.includes('administrative_area_level_1')) {
+                state = component.long_name;
+              } else if (types.includes('postal_code')) {
+                pinCode = component.long_name;
+              }
+            }
+          }
+
+          if (!houseName && street) houseName = street;
+
+          onAddressResolved({
+            latitude: lat,
+            longitude: lng,
+            formattedAddress: formatted,
+            houseName,
+            street: street || formatted.split(',')[0] || '',
+            city,
+            district: district || city,
+            state,
+            pinCode
+          });
+        }
       }
-    } catch (err) {
-      console.error('Search error:', err);
-    }
+    );
   };
 
   return (
     <>
-      <div className="absolute top-4 left-4 right-4 z-10 flex gap-2">
-        <form onSubmit={handleSearch} className="flex-1 flex bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
-          <input 
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search place, street, or PIN code..."
-            className="flex-1 px-4 py-2.5 text-xs bg-transparent text-gray-900 dark:text-white focus:outline-none"
-          />
-          <button type="submit" className="px-4 bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 flex items-center justify-center cursor-pointer">
-            <Search className="w-4 h-4" />
-          </button>
-        </form>
+      <div className="absolute top-4 left-4 right-4 z-10">
+        <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+          <div className="flex items-center px-3 py-2.5">
+            <Search className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
+            <input 
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search place, street, area, or PIN code..."
+              className="w-full text-xs bg-transparent text-gray-900 dark:text-white focus:outline-none"
+            />
+          </div>
+
+          {predictions.length > 0 && (
+            <div className="border-t border-gray-100 dark:border-slate-800 max-h-60 overflow-y-auto bg-white dark:bg-slate-900">
+              {predictions.map(pred => (
+                <button
+                  key={pred.place_id}
+                  type="button"
+                  onClick={() => handleSelectPrediction(pred.place_id, pred.description)}
+                  className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-800 text-xs text-gray-700 dark:text-gray-300 border-b border-gray-50 dark:border-slate-850 flex items-center gap-2 cursor-pointer"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                  <span className="truncate">{pred.description}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <Map
@@ -177,7 +277,7 @@ function MapContent({
             <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
             <p className="truncate font-medium">{resolvedAddress}</p>
           </div>
-          {isResolving && <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>}
+          {isResolving && <Loader2 className="w-4 h-4 text-blue-600 animate-spin flex-shrink-0" />}
         </div>
       )}
     </>
@@ -207,14 +307,14 @@ export const GoogleMapSelectorModal: React.FC<GoogleMapSelectorModalProps> = ({
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-  if (!apiKey) {
+  if (!apiKey || apiKey === 'YOUR_ACTUAL_GOOGLE_MAPS_API_KEY') {
     return (
       <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-4">
           <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
-          <h3 className="text-base font-bold text-gray-900 dark:text-white">Google Maps API Key Missing</h3>
+          <h3 className="text-base font-bold text-gray-900 dark:text-white">Google Maps API Key Missing or Unconfigured</h3>
           <p className="text-xs text-gray-600 dark:text-gray-400">
-            Please configure your Google Maps API key in environment variables to use interactive map selection. You can still enter your address manually.
+            Please configure your valid <code className="bg-gray-100 dark:bg-slate-800 px-1 py-0.5 rounded text-blue-600">VITE_GOOGLE_MAPS_API_KEY</code> in the root <code className="bg-gray-100 dark:bg-slate-800 px-1 py-0.5 rounded text-blue-600">.env.local</code> file to use interactive map selection. You can still enter your address manually.
           </p>
           <button
             type="button"
