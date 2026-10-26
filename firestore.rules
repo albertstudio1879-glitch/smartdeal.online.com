@@ -27,12 +27,22 @@ service cloud.firestore {
       allow update: if isOwner(userId)
         && request.resource.data.id == resource.data.id
         && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'phoneNumber', 'email', 'avatar', 'updatedAt']);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'phoneNumber', 'email', 'avatar', 'updatedAt', 'lastLoginAt']);
 
       allow delete: if false;
     }
 
-    // Passwordless OTP verification tracking
+    // Cart subcollection for user (cross-device sync)
+    match /users/{userId}/cart/{itemId} {
+      allow read, write: if isOwner(userId) && isValidId(itemId);
+    }
+
+    // Wishlist subcollection for user (cross-device sync)
+    match /users/{userId}/wishlist/{itemId} {
+      allow read, write: if isOwner(userId) && isValidId(itemId);
+    }
+
+    // Passwordless / Phone OTP verification tracking (legacy support if needed)
     match /otp_verifications/{otpId} {
       allow get: if true;
       allow list: if false;

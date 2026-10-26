@@ -14,6 +14,16 @@ import { BottomNav, BottomNavTab } from './components/BottomNav';
 import { CartDrawer } from './components/CartDrawer';
 import { AccountDrawer } from './components/AccountDrawer';
 import { LoginModal } from './components/LoginModal';
+import { UserAccount, initAuthListener, getLocalUser } from './services/authService';
+import { 
+  setupCloudSync, 
+  cloudAddCartItem, 
+  cloudRemoveCartItem, 
+  cloudClearCartCloud, 
+  cloudAddWishlistItem, 
+  cloudRemoveWishlistItem, 
+  cloudClearWishlistCloud 
+} from './services/syncService';
 import { Product, Category, Theme } from './types';
 import { 
   getProducts, 
@@ -118,6 +128,31 @@ const AppContent: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(() => {
     return (localStorage.getItem('theme') as Theme) || 'system';
   });
+
+  // User Authentication State for Cloud Sync
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getLocalUser());
+
+  useEffect(() => {
+    const unsubAuth = initAuthListener((u) => {
+      setCurrentUser(u);
+    });
+    return () => unsubAuth();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    const unsubSync = setupCloudSync(
+      currentUser.uid,
+      (ids, quantities) => {
+        setCartProductIds(ids);
+      },
+      (entries) => {
+        setWishlistEntries(entries);
+        setWishlistProductIds(entries.map(e => e.id));
+      }
+    );
+    return () => unsubSync();
+  }, [currentUser]);
 
   // Apply Theme Effect
   useEffect(() => {
@@ -245,23 +280,46 @@ const AppContent: React.FC = () => {
   const handleToggleCart = (id: string) => {
     const updated = toggleCartProduct(id, cartProductIds);
     setCartProductIds(updated);
+    if (currentUser) {
+      const isNowInCart = updated.includes(id);
+      if (isNowInCart) {
+        cloudAddCartItem(currentUser.uid, id, 1);
+      } else {
+        cloudRemoveCartItem(currentUser.uid, id);
+      }
+    }
   };
 
   const handleRemoveFromCart = (id: string) => {
     const updated = cartProductIds.filter(itemId => itemId !== id);
     setCartProductIds(updated);
     saveCartProductIds(updated);
+    if (currentUser) {
+      cloudRemoveCartItem(currentUser.uid, id);
+    }
   };
 
   const handleClearCart = () => {
+    const oldIds = [...cartProductIds];
     setCartProductIds([]);
     saveCartProductIds([]);
+    if (currentUser && oldIds.length > 0) {
+      cloudClearCartCloud(currentUser.uid, oldIds);
+    }
   };
 
   const handleToggleWishlist = (id: string) => {
     const updated = toggleWishlistProduct(id, wishlistProductIds);
     setWishlistProductIds(updated);
     setWishlistEntries(getWishlistEntries());
+    if (currentUser) {
+      const isNowInWishlist = updated.includes(id);
+      if (isNowInWishlist) {
+        cloudAddWishlistItem(currentUser.uid, id);
+      } else {
+        cloudRemoveWishlistItem(currentUser.uid, id);
+      }
+    }
   };
 
   const handleOpenWishlist = () => {
@@ -279,9 +337,13 @@ const AppContent: React.FC = () => {
   };
 
   const handleClearWishlist = () => {
+    const oldIds = [...wishlistProductIds];
     setWishlistProductIds([]);
     setWishlistEntries([]);
     saveWishlistEntries([]);
+    if (currentUser && oldIds.length > 0) {
+      cloudClearWishlistCloud(currentUser.uid, oldIds);
+    }
   };
 
   useEffect(() => {
