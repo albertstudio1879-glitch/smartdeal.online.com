@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { APIProvider, Map, AdvancedMarker, useMap } from '@vis.gl/react-google-maps';
-import { X, Search, MapPin, Check, AlertCircle, Loader2 } from 'lucide-react';
+import L from 'leaflet';
+import { X, Search, MapPin, Check, Loader2 } from 'lucide-react';
 
 interface GoogleMapSelectorModalProps {
   isOpen: boolean;
@@ -22,29 +22,106 @@ interface GoogleMapSelectorModalProps {
 
 const DEFAULT_CENTER = { lat: 10.8505, lng: 76.2711 }; // Kerala, India default
 
-function MapContent({ 
-  selectedPos, 
-  setSelectedPos, 
-  onAddressResolved 
-}: { 
-  selectedPos: { lat: number; lng: number }; 
-  setSelectedPos: (pos: { lat: number; lng: number }) => void;
-  onAddressResolved: (data: any) => void;
-}) {
-  const map = useMap();
+export const GoogleMapSelectorModal: React.FC<GoogleMapSelectorModalProps> = ({
+  isOpen,
+  onClose,
+  onSelectLocation,
+  initialLat,
+  initialLng,
+}) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+
+  const [selectedPos, setSelectedPos] = useState({
+    lat: initialLat || DEFAULT_CENTER.lat,
+    lng: initialLng || DEFAULT_CENTER.lng,
+  });
 
   const [searchQuery, setSearchQuery] = useState('');
   const [predictions, setPredictions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
   const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
+  const [addressData, setAddressData] = useState<any>(null);
 
   useEffect(() => {
-    if (map && selectedPos) {
-      map.panTo(selectedPos);
+    if (initialLat && initialLng) {
+      setSelectedPos({ lat: initialLat, lng: initialLng });
     }
-  }, [selectedPos, map]);
+  }, [initialLat, initialLng]);
 
+  // Initialize Leaflet map
+  useEffect(() => {
+    if (!isOpen || !mapRef.current) return;
+
+    if (!mapInstanceRef.current) {
+      const map = L.map(mapRef.current, {
+        center: [selectedPos.lat, selectedPos.lng],
+        zoom: 15,
+        zoomControl: true,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(map);
+
+      // Custom marker icon fix for Leaflet
+      const defaultIcon = L.divIcon({
+        className: 'custom-leaflet-marker',
+        html: `<div style="background-color: #2563eb; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); border: 2px solid white;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        </div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+      });
+
+      const marker = L.marker([selectedPos.lat, selectedPos.lng], {
+        draggable: true,
+        icon: defaultIcon,
+      }).addTo(map);
+
+      marker.on('dragend', () => {
+        const pos = marker.getLatLng();
+        setSelectedPos({ lat: pos.lat, lng: pos.lng });
+        reverseGeocode(pos.lat, pos.lng);
+      });
+
+      map.on('click', (e: L.LeafletMouseEvent) => {
+        const { lat, lng } = e.latlng;
+        marker.setLatLng([lat, lng]);
+        setSelectedPos({ lat, lng });
+        reverseGeocode(lat, lng);
+      });
+
+      mapInstanceRef.current = map;
+      markerRef.current = marker;
+
+      // Initial reverse geocode
+      reverseGeocode(selectedPos.lat, selectedPos.lng);
+    } else {
+      mapInstanceRef.current.setView([selectedPos.lat, selectedPos.lng], 15);
+      if (markerRef.current) {
+        markerRef.current.setLatLng([selectedPos.lat, selectedPos.lng]);
+      }
+    }
+
+    return () => {
+      // Cleanup map on close
+    };
+  }, [isOpen]);
+
+  // Clean up map instance when modal closes
+  useEffect(() => {
+    if (!isOpen && mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+      markerRef.current = null;
+    }
+  }, [isOpen]);
+
+  // Search autocomplete with Nominatim
   useEffect(() => {
     if (!searchQuery.trim() || searchQuery.length < 2) {
       setPredictions([]);
@@ -74,15 +151,6 @@ function MapContent({
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const handleMapClick = async (e: google.maps.MapMouseEvent) => {
-    if (!e.latLng) return;
-    const lat = e.latLng.lat();
-    const lng = e.latLng.lng();
-    const newPos = { lat, lng };
-    setSelectedPos(newPos);
-    await reverseGeocode(lat, lng);
-  };
-
   const reverseGeocode = async (lat: number, lng: number) => {
     setIsResolving(true);
     try {
@@ -102,7 +170,7 @@ function MapContent({
         const state = addr.state || '';
         const pinCode = addr.postcode || '';
 
-        onAddressResolved({
+        const payload = {
           latitude: lat,
           longitude: lng,
           formattedAddress: formatted,
@@ -112,13 +180,14 @@ function MapContent({
           district: district || city || '',
           state: state || '',
           pinCode: pinCode || ''
-        });
+        };
+        setAddressData(payload);
       }
     } catch (err) {
       console.error('Nominatim reverse geocode error:', err);
       const fallback = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
       setResolvedAddress(fallback);
-      onAddressResolved({
+      const payload = {
         latitude: lat,
         longitude: lng,
         formattedAddress: fallback,
@@ -128,7 +197,8 @@ function MapContent({
         district: '',
         state: '',
         pinCode: ''
-      });
+      };
+      setAddressData(payload);
     } finally {
       setIsResolving(false);
     }
@@ -141,128 +211,15 @@ function MapContent({
     setSearchQuery(description);
     setPredictions([]);
 
-    const newPos = { lat, lng };
-    setSelectedPos(newPos);
-    if (map) {
-      map.panTo(newPos);
-      map.setZoom(16);
+    setSelectedPos({ lat, lng });
+    if (mapInstanceRef.current && markerRef.current) {
+      mapInstanceRef.current.setView([lat, lng], 16);
+      markerRef.current.setLatLng([lat, lng]);
     }
     await reverseGeocode(lat, lng);
   };
 
-  return (
-    <>
-      <div className="absolute top-4 left-4 right-4 z-10">
-        <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-          <div className="flex items-center px-3 py-2.5">
-            <Search className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-            <input 
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search place, street, area, or PIN code..."
-              className="w-full text-xs bg-transparent text-gray-900 dark:text-white focus:outline-none"
-            />
-            {isSearching && <Loader2 className="w-3.5 h-3.5 text-blue-600 animate-spin flex-shrink-0 ml-2" />}
-          </div>
-
-          {predictions.length > 0 && (
-            <div className="border-t border-gray-100 dark:border-slate-800 max-h-60 overflow-y-auto bg-white dark:bg-slate-900">
-              {predictions.map((pred, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleSelectPrediction(pred)}
-                  className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-800 text-xs text-gray-700 dark:text-gray-300 border-b border-gray-50 dark:border-slate-850 flex items-center gap-2 cursor-pointer"
-                >
-                  <MapPin className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-                  <span className="truncate">{pred.display_name}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <Map
-        defaultCenter={selectedPos}
-        defaultZoom={15}
-        mapId={import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID"}
-        gestureHandling={'greedy'}
-        disableDefaultUI={false}
-        onClick={handleMapClick}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <AdvancedMarker 
-          position={selectedPos} 
-          draggable={true}
-          onDragEnd={(e) => {
-            if (e.latLng) {
-              const lat = e.latLng.lat();
-              const lng = e.latLng.lng();
-              setSelectedPos({ lat, lng });
-              reverseGeocode(lat, lng);
-            }
-          }}
-        />
-      </Map>
-
-      {resolvedAddress && (
-        <div className="absolute bottom-20 left-4 right-4 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm p-3 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700 text-xs text-gray-800 dark:text-gray-200 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
-            <p className="truncate font-medium">{resolvedAddress}</p>
-          </div>
-          {isResolving && <Loader2 className="w-4 h-4 text-blue-600 animate-spin flex-shrink-0" />}
-        </div>
-      )}
-    </>
-  );
-}
-
-export const GoogleMapSelectorModal: React.FC<GoogleMapSelectorModalProps> = ({
-  isOpen,
-  onClose,
-  onSelectLocation,
-  initialLat,
-  initialLng,
-}) => {
-  const [selectedPos, setSelectedPos] = useState({ 
-    lat: initialLat || DEFAULT_CENTER.lat, 
-    lng: initialLng || DEFAULT_CENTER.lng 
-  });
-  const [addressData, setAddressData] = useState<any>(null);
-
-  useEffect(() => {
-    if (initialLat && initialLng) {
-      setSelectedPos({ lat: initialLat, lng: initialLng });
-    }
-  }, [initialLat, initialLng]);
-
   if (!isOpen) return null;
-
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
-  if (!apiKey || apiKey === 'YOUR_ACTUAL_GOOGLE_MAPS_API_KEY') {
-    return (
-      <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-4">
-          <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
-          <h3 className="text-base font-bold text-gray-900 dark:text-white">Google Maps API Key Missing or Unconfigured</h3>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
-            Please configure your valid <code className="bg-gray-100 dark:bg-slate-800 px-1 py-0.5 rounded text-blue-600">VITE_GOOGLE_MAPS_API_KEY</code> in the root <code className="bg-gray-100 dark:bg-slate-800 px-1 py-0.5 rounded text-blue-600">.env.local</code> file to use interactive map selection. You can still enter your address manually.
-          </p>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-full py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl cursor-pointer"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 z-[120] bg-white dark:bg-slate-950 flex flex-col animate-in fade-in duration-200">
@@ -284,13 +241,49 @@ export const GoogleMapSelectorModal: React.FC<GoogleMapSelectorModalProps> = ({
 
       {/* Map Container */}
       <div className="flex-1 relative">
-        <APIProvider apiKey={apiKey} libraries={['places', 'geocoding']}>
-          <MapContent 
-            selectedPos={selectedPos} 
-            setSelectedPos={setSelectedPos}
-            onAddressResolved={(data) => setAddressData(data)}
-          />
-        </APIProvider>
+        <div className="absolute top-4 left-4 right-4 z-[400]">
+          <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+            <div className="flex items-center px-3 py-2.5">
+              <Search className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
+              <input 
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search place, street, area, or PIN code..."
+                className="w-full text-xs bg-transparent text-gray-900 dark:text-white focus:outline-none"
+              />
+              {isSearching && <Loader2 className="w-3.5 h-3.5 text-blue-600 animate-spin flex-shrink-0 ml-2" />}
+            </div>
+
+            {predictions.length > 0 && (
+              <div className="border-t border-gray-100 dark:border-slate-800 max-h-60 overflow-y-auto bg-white dark:bg-slate-900">
+                {predictions.map((pred, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleSelectPrediction(pred)}
+                    className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-800 text-xs text-gray-700 dark:text-gray-300 border-b border-gray-50 dark:border-slate-850 flex items-center gap-2 cursor-pointer"
+                  >
+                    <MapPin className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                    <span className="truncate">{pred.display_name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div ref={mapRef} style={{ width: '100%', height: '100%', zIndex: 10 }} />
+
+        {resolvedAddress && (
+          <div className="absolute bottom-20 left-4 right-4 z-[400] bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm p-3 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700 text-xs text-gray-800 dark:text-gray-200 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
+              <p className="truncate font-medium">{resolvedAddress}</p>
+            </div>
+            {isResolving && <Loader2 className="w-4 h-4 text-blue-600 animate-spin flex-shrink-0" />}
+          </div>
+        )}
       </div>
 
       {/* Bottom Footer Action */}
